@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidAsset(data) {
+      return data.keys().hasAll(['tag', 'name', 'sector', 'criticality', 'status'])
+        && data.tag is string && data.tag.size() > 0 && data.tag.size() <= 64
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 256
+        && data.sector is string && data.sector.size() <= 256
+        && (data.criticality == 'A' || data.criticality == 'B' || data.criticality == 'C')
+        && (data.status == 'Operacional' || data.status == 'Pendente' || data.status == 'Em Alerta' || data.status == 'Parado');
+    }
+
+    function isValidTechnician(data) {
+      return data.keys().hasAll(['name', 'role', 'reg'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 256
+        && data.role is string && data.role.size() <= 256
+        && data.reg is string && data.reg.size() <= 64;
+    }
+
+    function isValidSettings(data) {
+      return (!('plantName' in data) || (data.plantName is string && data.plantName.size() <= 256))
+        && (!('plantLine' in data) || (data.plantLine is string && data.plantLine.size() <= 256));
+    }
+
+    // Assets Collection (Continuous casting equipment)
+    match /assets/{assetId} {
+      allow read: if true;
+      allow create: if isValidId(assetId) && isValidAsset(incoming());
+      allow update: if isValidId(assetId) && isValidAsset(incoming());
+      allow delete: if isValidId(assetId);
+    }
+
+    // Technicians Collection
+    match /technicians/{technicianId} {
+      allow read: if true;
+      allow create: if isValidId(technicianId) && isValidTechnician(incoming());
+      allow update: if isValidId(technicianId) && isValidTechnician(incoming());
+      allow delete: if isValidId(technicianId);
+    }
+
+    // Settings Collection
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update: if isValidId(settingId) && isValidSettings(incoming());
+      allow delete: if isValidId(settingId);
+    }
+  }
+}

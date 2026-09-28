@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #0b1326;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+  --color-surface-bright: #31394d;
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #c3c6d7;
+  --color-outline: #8d90a0;
+  --color-outline-variant: #434655;
+  --color-primary: #b4c5ff;
+  --color-primary-container: #2563eb;
+  --color-on-primary: #002a78;
+  --color-on-primary-container: #eeefff;
+  --color-secondary: #ffb95f;
+  --color-secondary-container: #ee9800;
+  --color-on-secondary: #472a00;
+  --color-secondary-fixed: #ffddb8;
+  --color-secondary-fixed-dim: #ffb95f;
+  --color-tertiary: #4edea3;
+  --color-tertiary-container: #007d55;
+  --color-on-tertiary: #003824;
+  --color-on-tertiary-container: #bdffdb;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
+  --color-inverse-surface: #dae2fd;
+  --color-inverse-on-surface: #283044;
+
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-body: "Hanken Grotesk", sans-serif;
+}
+
+@layer base {
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #0b1326;
+    color: #dae2fd;
+    font-family: "Hanken Grotesk", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.font-headline-sm {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.font-headline-md {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+}
+.font-label-sm {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 500;
+}
+.font-label-md {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+.font-label-lg {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.font-body-sm {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+.font-body-md {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.px-margin {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.-mx-margin {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+.p-space-sm {
+  padding: 0.5rem;
+}
+.p-space-md {
+  padding: 1rem;
+}
+.p-space-xs {
+  padding: 0.25rem;
+}
+.gap-space-xs {
+  gap: 0.25rem;
+}
+.gap-space-sm {
+  gap: 0.5rem;
+}
+.gap-space-md {
+  gap: 1rem;
+}
+.space-y-space-xs > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.25rem;
+}
+.space-y-space-sm > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.5rem;
+}
+.space-y-space-md > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+.space-x-space-xs > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0.25rem;
+}
+.space-x-space-sm > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0.5rem;
+}
+.space-x-space-md > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 1rem;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+

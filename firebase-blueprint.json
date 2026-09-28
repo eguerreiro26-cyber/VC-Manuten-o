@@ -1,0 +1,136 @@
+{
+  "entities": {
+    "Asset": {
+      "title": "Asset",
+      "description": "Industrial maintenance asset in continuous casting (Vazamento Contínuo SMS Concast)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the asset",
+          "maxLength": 128
+        },
+        "tag": {
+          "type": "string",
+          "description": "Industrial tag code",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the equipment",
+          "maxLength": 256
+        },
+        "sector": {
+          "type": "string",
+          "description": "Subsystem or production sector",
+          "maxLength": 256
+        },
+        "plantArea": {
+          "type": "string",
+          "description": "Plant facility area (e.g. SN Seixal)",
+          "maxLength": 128
+        },
+        "criticality": {
+          "type": "string",
+          "enum": ["A", "B", "C"],
+          "description": "Reliability criticality ranking"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Operacional", "Pendente", "Em Alerta", "Parado"],
+          "description": "Operational health status"
+        },
+        "statusLabel": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "revCode": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "manufacturer": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "serialNumber": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "lastInterventionDate": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "nextIntervention": {
+          "type": "object",
+          "description": "Next scheduled maintenance intervention"
+        },
+        "routines": {
+          "type": "array",
+          "description": "Preventive maintenance routines"
+        },
+        "history": {
+          "type": "array",
+          "description": "Log of completed maintenance operations"
+        }
+      },
+      "required": ["tag", "name", "sector", "criticality", "status", "nextIntervention"]
+    },
+    "Technician": {
+      "title": "Technician",
+      "description": "Maintenance technician or certified specialist",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "reg": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["name", "role", "reg"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Global plant facility configuration settings",
+      "type": "object",
+      "properties": {
+        "plantName": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "plantLine": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/assets/{assetId}": {
+      "schema": { "$ref": "#/entities/Asset" },
+      "description": "Collection of industrial continuous casting assets"
+    },
+    "/technicians/{technicianId}": {
+      "schema": { "$ref": "#/entities/Technician" },
+      "description": "Collection of maintenance technicians"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Plant settings and metadata"
+    }
+  }
+}
