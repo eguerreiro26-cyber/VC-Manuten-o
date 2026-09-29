@@ -375,18 +375,21 @@ export const EquipamentosView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Planned Intervention Details */}
-                <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-[#171f33] border border-[#222a3d]">
+                {/* Descritivo da Tarefa */}
+                <div className="flex flex-col gap-1.5 p-2.5 rounded-lg bg-[#171f33] border border-[#222a3d]">
                   <div className="flex items-center justify-between">
-                    <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase tracking-wider">
-                      Próxima Intervenção
+                    <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase tracking-wider font-semibold">
+                      Descritivo da Tarefa
                     </span>
                     <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#b4c5ff] font-label-sm text-label-sm font-medium">
                       {asset.nextIntervention.frequencyLabel}
                     </span>
                   </div>
-                  <p className="font-body-sm text-body-sm text-[#dae2fd] font-medium mt-0.5 line-clamp-1">
+                  <p className="font-body-sm text-body-sm text-[#dae2fd] font-semibold">
                     {asset.nextIntervention.title}
+                  </p>
+                  <p className="text-xs text-[#c3c6d7] leading-relaxed line-clamp-2">
+                    {asset.routines.find(r => r.title === asset.nextIntervention.title)?.description || asset.routines[0]?.description || 'Inspeção técnica e manutenção preventiva operacional.'}
                   </p>
                   <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-[#222a3d] text-[#c3c6d7]">
                     <span className="flex items-center gap-1 text-[#8d90a0]">

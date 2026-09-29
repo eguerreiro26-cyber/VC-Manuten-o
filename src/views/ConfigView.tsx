@@ -11,7 +11,6 @@ export const ConfigView: React.FC = () => {
     isOfflineMode,
     setIsOfflineMode,
     triggerManualSync,
-    resetToInitialData,
     showToast,
     assets,
     technicians,
@@ -29,9 +28,6 @@ export const ConfigView: React.FC = () => {
 
   // Technician deletion confirmation modal state
   const [techToDelete, setTechToDelete] = useState<Technician | null>(null);
-
-  // Database reset confirmation modal state
-  const [resetModalOpen, setResetModalOpen] = useState(false);
 
   const openAddTechModal = () => {
     setEditingTechId(null);
@@ -82,27 +78,6 @@ export const ConfigView: React.FC = () => {
       deleteTechnician(techToDelete.id);
       setTechToDelete(null);
     }
-  };
-
-  const handleExportBackup = () => {
-    const jsonStr = JSON.stringify(assets, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `IndusMaint_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast('Backup do inventário industrial descarregado com sucesso.');
-  };
-
-  const handleConfirmReset = () => {
-    setResetModalOpen(true);
-  };
-
-  const handleExecuteReset = () => {
-    resetToInitialData();
-    setResetModalOpen(false);
   };
 
   return (
@@ -327,37 +302,7 @@ export const ConfigView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Gestão de Dados & Backup */}
-      <div className="bg-[#131b2e] border border-[#222a3d] rounded-xl p-4 flex flex-col gap-3">
-        <div className="flex items-center gap-2 pb-1 border-b border-[#222a3d]">
-          <span className="material-symbols-outlined text-[#b4c5ff] text-[20px]">database</span>
-          <span className="font-headline-sm text-headline-sm text-[#dae2fd] text-base">
-            Backup & Segurança de Dados
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={handleExportBackup}
-            className="min-h-[44px] px-3 rounded-lg bg-[#222a3d] text-[#dae2fd] font-label-sm text-label-sm font-semibold active:bg-[#2d3449] hover:bg-[#2d3449]/80 transition-colors flex items-center justify-center gap-1.5 border border-[#2d3449]"
-          >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            <span>Exportar Backup (JSON)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleConfirmReset}
-            className="min-h-[44px] px-3 rounded-lg bg-[#93000a]/30 text-[#ffb4ab] font-label-sm text-label-sm font-semibold active:bg-[#93000a]/50 hover:bg-[#93000a]/40 transition-colors flex items-center justify-center gap-1.5 border border-[#93000a]/50"
-          >
-            <span className="material-symbols-outlined text-[18px]">restore</span>
-            <span>Repor Padrões de Fábrica</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 5. Modal Adicionar / Editar Técnico */}
+      {/* 4. Modal Adicionar / Editar Técnico */}
       {techModalOpen && (
         <div className="fixed inset-0 z-[100] bg-[#060e20]/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#171f33] border border-[#2d3449] rounded-2xl w-full max-w-md p-5 flex flex-col shadow-2xl animate-in zoom-in-95 duration-150">
@@ -521,55 +466,7 @@ export const ConfigView: React.FC = () => {
         </div>
       )}
 
-      {/* 5c. Modal Confirmação Repor Padrões de Fábrica */}
-      {resetModalOpen && (
-        <div className="fixed inset-0 z-[110] bg-[#060e20]/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-[#171f33] border border-[#ffb4ab]/40 rounded-2xl w-full max-w-md p-5 flex flex-col shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3 pb-3 border-b border-[#2d3449]">
-              <div className="w-10 h-10 rounded-xl bg-[#93000a]/30 text-[#ffb4ab] border border-[#ffb4ab]/40 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-[24px]">restart_alt</span>
-              </div>
-              <div>
-                <h3 className="font-headline-sm text-headline-sm text-[#dae2fd] text-base font-bold">
-                  Repor Padrões de Fábrica
-                </h3>
-                <p className="text-xs text-[#8d90a0]">
-                  Restauro da base de dados industrial
-                </p>
-              </div>
-            </div>
-
-            <div className="my-4 p-3 rounded-lg bg-[#060e20] border border-[#222a3d] text-xs text-[#c3c6d7] leading-relaxed">
-              <p>
-                Esta operação irá restabelecer os 16 equipamentos industriais originais do <strong>Vazamento Contínuo SMS Concast da SN Seixal</strong> e repor as rotinas padrão.
-              </p>
-              <p className="mt-2 text-[#ffb4ab]">
-                Deseja prosseguir com o restauro?
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <button
-                type="button"
-                onClick={() => setResetModalOpen(false)}
-                className="h-11 rounded-xl bg-[#222a3d] text-[#c3c6d7] font-semibold hover:bg-[#2d3449] hover:text-[#dae2fd] transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleExecuteReset}
-                className="h-11 rounded-xl bg-[#ba1a1a] text-[#ffffff] font-semibold hover:bg-[#93000a] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-[#ba1a1a]/30 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">restore</span>
-                <span>Confirmar Restauro</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 6. Normas & Certificação */}
+      {/* 5. Normas & Certificação */}
       <div className="p-3 bg-[#060e20] border border-[#171f33] rounded-xl text-center text-xs text-[#8d90a0]">
         <p className="font-mono font-semibold text-[#b4c5ff]">
           IndusMaint Gear CMMS • Versão 4.8-PROD

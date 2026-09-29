@@ -13,7 +13,6 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
 
   const asset = assets.find(a => a.id === assetId) || assets[0];
 
-  const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [showDossierModal, setShowDossierModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -30,10 +29,6 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
       </div>
     );
   }
-
-  const toggleRoutine = (id: string) => {
-    setExpandedRoutineId(prev => (prev === id ? null : id));
-  };
 
   const handlePrintDossier = () => {
     showToast(`Dossiê Técnico de ${asset.tag} pronto para impressão / exportação.`);
@@ -199,7 +194,6 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
             </div>
           ) : (
             asset.routines.map(routine => {
-              const isExpanded = expandedRoutineId === routine.id;
               const isCal = routine.type === 'Calibração';
               const isSub = routine.type === 'Substituição';
               const isLub = routine.type === 'Lubrificação';
@@ -222,7 +216,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                   key={routine.id}
                   className="bg-[#131b2e] border border-[#222a3d] rounded-xl p-3.5 shadow-sm space-y-2.5 transition-all"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-9 h-9 rounded-lg bg-[#222a3d] flex items-center justify-center shrink-0">
                         <span className={`material-symbols-outlined text-[20px] ${accentColor}`}>
@@ -230,81 +224,39 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                         </span>
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-label-lg text-label-lg text-[#dae2fd] font-semibold">
                             {routine.title}
                           </span>
                           <span className="px-1.5 py-0.5 rounded bg-[#171f33] text-[#b4c5ff] font-label-sm text-label-sm uppercase font-mono border border-[#2d3449]">
                             {routine.code}
                           </span>
+                          <span className="px-1.5 py-0.5 rounded bg-[#222a3d] text-[#c3c6d7] font-label-sm text-label-sm">
+                            {routine.type}
+                          </span>
                         </div>
-                        <p className="font-body-sm text-body-sm text-[#c3c6d7]">
-                          {routine.description}
-                        </p>
                       </div>
                     </div>
-                    <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-[#222a3d] text-[#c3c6d7] font-mono">
-                      P-{routine.periodicityDays}D
+                  </div>
+
+                  {/* Descritivo da Tarefa */}
+                  <div className="bg-[#060e20]/80 border border-[#171f33] rounded-lg p-2.5 text-[#dae2fd] space-y-1.5">
+                    <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase block">
+                      Descritivo da Tarefa
+                    </span>
+                    <p className="font-body-sm text-body-sm text-[#dae2fd] leading-relaxed">
+                      {routine.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between text-body-sm pt-0.5 text-xs text-[#c3c6d7]">
+                    <span className="font-label-sm text-[#8d90a0] uppercase">
+                      Periodicidade:
+                    </span>
+                    <span className="font-mono font-semibold text-[#b4c5ff]">
+                      {routine.periodicityLabel}
                     </span>
                   </div>
-
-                  <div className="bg-[#060e20]/80 border border-[#171f33] rounded-lg p-2.5 grid grid-cols-2 gap-2 text-[#dae2fd]">
-                    <div className="flex flex-col">
-                      <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase">
-                        Periodicidade
-                      </span>
-                      <span className="font-body-md text-body-md font-semibold">
-                        {routine.periodicityLabel}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase">
-                        Tolerância / Especificação
-                      </span>
-                      <span className="font-label-md text-label-md text-[#ffb95f] font-semibold">
-                        {routine.toleranceOrSpec}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-body-sm pt-0.5">
-                    <span className="text-[#c3c6d7] text-[11px] flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[13px] text-[#4edea3]">
-                        check_circle
-                      </span>
-                      {routine.standardInstrumentOrPart || 'Procedimento Técnico Homologado'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleRoutine(routine.id)}
-                      className="text-[#b4c5ff] font-label-sm text-label-sm flex items-center gap-0.5 hover:underline"
-                    >
-                      <span>Detalhes</span>
-                      <span
-                        className={`material-symbols-outlined text-[14px] transform transition-transform ${
-                          isExpanded ? 'rotate-180' : 'rotate-0'
-                        }`}
-                      >
-                        expand_more
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Micro-instructions collapsible */}
-                  {isExpanded && (
-                    <div className="pt-2 border-t border-[#222a3d] text-body-sm text-[#c3c6d7] space-y-1 animate-in fade-in duration-150">
-                      {routine.instructions?.map((ins, i) => (
-                        <p key={i} className="flex items-start gap-1">
-                          <span className="text-[#b4c5ff]">•</span>
-                          <span>{ins}</span>
-                        </p>
-                      )) || (
-                        <p>
-                          • Executar procedimento sob condições seguras com bloqueio de energia LOTO.
-                        </p>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })
@@ -482,7 +434,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                 <div className="font-bold mb-1">Rotinas de Manutenção Registadas:</div>
                 {asset.routines.map(r => (
                   <div key={r.id} className="text-[10px] py-0.5">
-                    • [{r.code}] {r.title} - Período: {r.periodicityLabel} ({r.toleranceOrSpec})
+                    • [{r.code}] {r.title} - Período: {r.periodicityLabel}
                   </div>
                 ))}
               </div>

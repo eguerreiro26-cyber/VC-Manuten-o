@@ -25,21 +25,22 @@ export function downloadPdf(doc: jsPDF, filename: string): void {
   }
 }
 
-interface ReportFilterInfo {
-  sector: string;
-  criticality: string;
-  type: string;
-  status: string;
-  timeframe: string;
+export interface ReportFilterInfo {
+  sector?: string;
+  criticality?: string;
+  type?: string;
+  status?: string;
+  timeframe?: string;
 }
 
 /**
- * Generates and downloads the comprehensive Industrial Maintenance Technical Report (PDF).
+ * Builds the comprehensive Industrial Maintenance Technical Report (jsPDF doc, Blob, File, and filename)
+ * without immediately forcing a browser download, allowing direct sharing or downloading.
  */
-export function generateTechnicalReportPdf(
+export function buildTechnicalReportPdf(
   assets: Asset[],
   filters?: ReportFilterInfo
-): void {
+): { doc: jsPDF; blob: Blob; filename: string; file: File } {
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
@@ -310,9 +311,22 @@ export function generateTechnicalReportPdf(
 
   autoTable(doc, tableOptions);
 
-  // Download the generated PDF directly
   const safeDate = now.toISOString().slice(0, 10);
   const filename = `Relatorio_Tecnico_IndusMaint_${safeDate}.pdf`;
+  const blob = doc.output('blob');
+  const file = new File([blob], filename, { type: 'application/pdf' });
+
+  return { doc, blob, filename, file };
+}
+
+/**
+ * Generates and downloads the comprehensive Industrial Maintenance Technical Report (PDF).
+ */
+export function generateTechnicalReportPdf(
+  assets: Asset[],
+  filters?: ReportFilterInfo
+): void {
+  const { doc, filename } = buildTechnicalReportPdf(assets, filters);
   downloadPdf(doc, filename);
 }
 
@@ -440,17 +454,16 @@ export function generateAssetDossierPdf(asset: Asset): void {
   const routinesData = (asset.routines || []).map(r => [
     r.code,
     r.type,
-    r.title,
+    r.title + (r.description ? `\n${r.description}` : ''),
     r.periodicityLabel,
-    r.toleranceOrSpec,
-    r.standardInstrumentOrPart || '-'
+    r.standardInstrumentOrPart || 'Procedimento Técnico Homologado'
   ]);
 
   autoTable(doc, {
     startY: currentY + 3,
     margin: { left: 14, right: 14 },
-    head: [['CÓDIGO', 'TIPO', 'DESCRIÇÃO DA ROTINA', 'PERIODICIDADE', 'TOLERÂNCIA / SPEC', 'INSTRUMENTO / PEÇA']],
-    body: routinesData.length > 0 ? routinesData : [['-', '-', 'Nenhuma rotina cadastrada', '-', '-', '-']],
+    head: [['CÓDIGO', 'TIPO', 'DESCRIÇÃO DA TAREFA / ROTINA', 'PERIODICIDADE', 'INSTRUMENTO / NORMA']],
+    body: routinesData.length > 0 ? routinesData : [['-', '-', 'Nenhuma rotina cadastrada', '-', '-']],
     theme: 'grid',
     styles: {
       font: 'helvetica',
@@ -468,11 +481,10 @@ export function generateAssetDossierPdf(asset: Asset): void {
     },
     columnStyles: {
       0: { fontStyle: 'bold', halign: 'center', cellWidth: 20 },
-      1: { halign: 'center', cellWidth: 25 },
-      2: { cellWidth: 50 },
-      3: { halign: 'center', cellWidth: 26 },
-      4: { cellWidth: 32 },
-      5: { cellWidth: 29 }
+      1: { halign: 'center', cellWidth: 28 },
+      2: { cellWidth: 70 },
+      3: { halign: 'center', cellWidth: 28 },
+      4: { cellWidth: 36 }
     },
     alternateRowStyles: {
       fillColor: [248, 250, 252]

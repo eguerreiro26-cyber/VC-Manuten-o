@@ -1,21 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset } from '../types';
-import { generateTechnicalReportPdf, generateAssetDossierPdf } from '../utils/pdfGenerator';
+import {
+  buildTechnicalReportPdf,
+  generateTechnicalReportPdf,
+  generateAssetDossierPdf,
+  downloadPdf
+} from '../utils/pdfGenerator';
 
 export const RelatoriosView: React.FC = () => {
   const { assets, showToast } = useApp();
 
-  // Filters state
-  const [selectedSector, setSelectedSector] = useState<string>('Todos');
+  // Filters state (sector and type removed as requested)
   const [selectedCrit, setSelectedCrit] = useState<string>('Todas');
-  const [selectedType, setSelectedType] = useState<string>('Todas');
   const [selectedStatus, setSelectedStatus] = useState<string>('Todos');
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>('Este Mês');
   const [viewMode, setViewMode] = useState<'tabela' | 'cartoes'>('tabela');
   const [showExportToast, setShowExportToast] = useState(false);
   const [exportToastMessage, setExportToastMessage] = useState('Ficheiro CSV gerado e pronto a abrir no Excel!');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isSharingPdf, setIsSharingPdf] = useState(false);
   const [dossierAsset, setDossierAsset] = useState<Asset | null>(null);
   const [expandedRowIds, setExpandedRowIds] = useState<Record<string, boolean>>({});
 
@@ -26,26 +30,10 @@ export const RelatoriosView: React.FC = () => {
   // Filter application
   const filteredAssets = useMemo(() => {
     return assets.filter(asset => {
-      // Sector filter
-      if (selectedSector !== 'Todos') {
-        const sectorMatches =
-          asset.plantArea === selectedSector ||
-          asset.sector.toLowerCase().includes(selectedSector.toLowerCase());
-        if (!sectorMatches) return false;
-      }
-
       // Criticality filter
       if (selectedCrit !== 'Todas') {
         const targetCrit = selectedCrit.includes('A') ? 'A' : selectedCrit.includes('B') ? 'B' : 'C';
         if (asset.criticality !== targetCrit) return false;
-      }
-
-      // Type filter
-      if (selectedType !== 'Todas') {
-        const hasType =
-          asset.routines.some(r => r.type === selectedType) ||
-          asset.nextIntervention.title.toLowerCase().includes(selectedType.toLowerCase());
-        if (!hasType) return false;
       }
 
       // Status filter
@@ -61,7 +49,7 @@ export const RelatoriosView: React.FC = () => {
 
       return true;
     });
-  }, [assets, selectedSector, selectedCrit, selectedType, selectedStatus]);
+  }, [assets, selectedCrit, selectedStatus]);
 
   // Statistics
   const totalFiltered = filteredAssets.length;
@@ -70,9 +58,7 @@ export const RelatoriosView: React.FC = () => {
 
   // Clear filters
   const handleResetFilters = () => {
-    setSelectedSector('Todos');
     setSelectedCrit('Todas');
-    setSelectedType('Todas');
     setSelectedStatus('Todos');
     setSelectedTimeframe('Este Mês');
     showToast('Filtros repostos.');
@@ -134,13 +120,10 @@ export const RelatoriosView: React.FC = () => {
       setIsGeneratingPdf(true);
       showToast('A compilar e gerar Relatório Técnico em PDF...');
 
-      // Slight timeout to let UI update spinner before heavy jsPDF generation
       setTimeout(() => {
         try {
           generateTechnicalReportPdf(filteredAssets, {
-            sector: selectedSector,
             criticality: selectedCrit,
-            type: selectedType,
             status: selectedStatus,
             timeframe: selectedTimeframe
           });
@@ -163,16 +146,70 @@ export const RelatoriosView: React.FC = () => {
   };
 
   const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Relatório IndusMaint CMMS',
-        text: `Relatório de Manutenção: ${totalFiltered} ativos selecionados, ${critAFiltered} críticos A, ${scheduledCount} ordens agendadas.`
-      }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(
-        `Relatório IndusMaint CMMS: ${totalFiltered} ativos filtrados, ${critAFiltered} Crítica A, ${scheduledCount} agendamentos.`
-      );
-      showToast('Sumário do relatório copiado para partilha!');
+    try {
+      setIsSharingPdf(true);
+      showToast('A compilar relatório PDF para partilha...');
+
+      setTimeout(async () => {
+        try {
+          const { doc, filename, file } = buildTechnicalReportPdf(filteredAssets, {
+            criticality: selectedCrit,
+            status: selectedStatus,
+            timeframe: selectedTimeframe
+          });
+
+          const shareData = {
+            title: 'Relatório Técnico IndusMaint CMMS',
+            text: `Relatório Técnico de Manutenção: ${totalFiltered} ativos monitorizados (${critAFiltered} Crítica A, ${scheduledCount} rotinas). Em anexo relatório PDF oficial.`
+          };
+
+          // Try native file sharing (supported on mobile/browsers)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                ...shareData,
+                files: [file]
+              });
+              setIsSharingPdf(false);
+              showToast('Relatório PDF partilhado com sucesso!');
+              return;
+            } catch (shareErr: any) {
+              if (shareErr.name === 'AbortError') {
+                setIsSharingPdf(false);
+                return;
+              }
+              console.warn('Partilha direta de ficheiro cancelada ou sem suporte:', shareErr);
+            }
+          }
+
+          // Fallback: download PDF and share text/clipboard
+          downloadPdf(doc, filename);
+
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+            } catch {
+              // Ignore abort
+            }
+          } else if (navigator.clipboard) {
+            await navigator.clipboard.writeText(shareData.text);
+          }
+
+          setIsSharingPdf(false);
+          setExportToastMessage(`Relatório PDF (${filename}) gerado e pronto a partilhar!`);
+          setShowExportToast(true);
+          setTimeout(() => setShowExportToast(false), 5000);
+          showToast('Relatório PDF descarregado para envio nos diversos meios!');
+        } catch (err) {
+          console.error('Erro ao preparar relatório PDF para partilha:', err);
+          setIsSharingPdf(false);
+          showToast('Erro ao gerar PDF para partilha.');
+        }
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      setIsSharingPdf(false);
+      showToast('Erro ao processar partilha.');
     }
   };
 
@@ -225,30 +262,6 @@ export const RelatoriosView: React.FC = () => {
           </button>
         </div>
 
-        {/* Setor Fabril */}
-        <div className="flex flex-col gap-1.5">
-          <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">Setor Fabril</span>
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            {['Todos', 'Linha 1', 'Linha 2', 'Utilidades'].map(sec => {
-              const active = selectedSector === sec;
-              return (
-                <button
-                  key={sec}
-                  type="button"
-                  onClick={() => setSelectedSector(sec)}
-                  className={`px-3 py-2 rounded-lg font-label-sm text-label-sm min-h-[42px] flex items-center transition-all shrink-0 ${
-                    active
-                      ? 'bg-[#2563eb] text-[#eeefff] font-semibold shadow-sm'
-                      : 'bg-[#222a3d] text-[#c3c6d7] hover:text-white'
-                  }`}
-                >
-                  {sec}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Nível de Criticidade */}
         <div className="flex flex-col gap-1.5">
           <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">Criticidade</span>
@@ -279,61 +292,34 @@ export const RelatoriosView: React.FC = () => {
           </div>
         </div>
 
-        {/* Tipo de Intervenção & Estado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
-          <div className="flex flex-col gap-1.5">
-            <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-              Tipo de Intervenção
-            </span>
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {['Todas', 'Lubrificação', 'Calibração', 'Substituição'].map(t => {
-                const active = selectedType === t;
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setSelectedType(t)}
-                    className={`px-3 py-2 rounded-lg font-label-sm text-label-sm min-h-[42px] whitespace-nowrap transition-all ${
-                      active
-                        ? 'bg-[#2563eb] text-[#eeefff] font-semibold'
-                        : 'bg-[#222a3d] text-[#c3c6d7]'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-              Estado do Agendamento
-            </span>
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {[
-                { id: 'Todos', label: 'Todos' },
-                { id: 'No Prazo', label: 'No Prazo', text: 'text-[#4edea3]' },
-                { id: 'Expira em 5d', label: 'Expira em 5d', text: 'text-[#ffb95f]' },
-                { id: 'Vencidas', label: 'Vencidas', text: 'text-[#ffb4ab]' }
-              ].map(st => {
-                const active = selectedStatus === st.id;
-                return (
-                  <button
-                    key={st.id}
-                    type="button"
-                    onClick={() => setSelectedStatus(st.id)}
-                    className={`px-3 py-2 rounded-lg font-label-sm text-label-sm min-h-[42px] whitespace-nowrap transition-all ${
-                      active
-                        ? 'bg-[#2563eb] text-[#eeefff] font-semibold'
-                        : `bg-[#222a3d] ${st.text || 'text-[#c3c6d7]'}`
-                    }`}
-                  >
-                    {st.label}
-                  </button>
-                );
-              })}
-            </div>
+        {/* Estado do Agendamento */}
+        <div className="flex flex-col gap-1.5 pt-1">
+          <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
+            Estado do Agendamento
+          </span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 py-0.5">
+            {[
+              { id: 'Todos', label: 'Todos' },
+              { id: 'No Prazo', label: 'No Prazo', text: 'text-[#4edea3]' },
+              { id: 'Expira em 5d', label: 'Expira em 5d', text: 'text-[#ffb95f]' },
+              { id: 'Vencidas', label: 'Vencidas', text: 'text-[#ffb4ab]' }
+            ].map(st => {
+              const active = selectedStatus === st.id;
+              return (
+                <button
+                  key={st.id}
+                  type="button"
+                  onClick={() => setSelectedStatus(st.id)}
+                  className={`px-3 py-2 rounded-lg font-label-sm text-label-sm min-h-[42px] flex items-center justify-center transition-all ${
+                    active
+                      ? 'bg-[#2563eb] text-[#eeefff] font-semibold'
+                      : `bg-[#222a3d] ${st.text || 'text-[#c3c6d7]'}`
+                  }`}
+                >
+                  {st.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -415,17 +401,25 @@ export const RelatoriosView: React.FC = () => {
             </span>
           </button>
 
-          {/* Partilhar / Imprimir */}
+          {/* Partilhar / Enviar PDF */}
           <button
             type="button"
+            disabled={isSharingPdf}
             onClick={handleShare}
-            className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#222a3d] text-[#dae2fd] min-h-[48px] active:scale-95 hover:bg-[#2d3449] transition-all border border-[#2d3449]"
+            className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#222a3d] text-[#dae2fd] min-h-[48px] active:scale-95 hover:bg-[#2d3449] hover:border-[#4edea3]/50 transition-all border border-[#2d3449] disabled:opacity-60"
+            title="Gerar e partilhar Relatório PDF através de WhatsApp, Email ou outras aplicações"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4edea3] text-[20px]">share</span>
-              <span className="font-label-md text-label-md font-semibold">Partilhar Resumo</span>
+              <span className={`material-symbols-outlined text-[#4edea3] text-[20px] ${isSharingPdf ? 'animate-spin' : ''}`}>
+                {isSharingPdf ? 'progress_activity' : 'share'}
+              </span>
+              <span className="font-label-md text-label-md font-semibold">
+                {isSharingPdf ? 'A Gerar PDF...' : 'Partilhar Resumo (PDF)'}
+              </span>
             </div>
-            <span className="material-symbols-outlined text-[18px]">send</span>
+            <span className="material-symbols-outlined text-[18px]">
+              {isSharingPdf ? 'hourglass_top' : 'send'}
+            </span>
           </button>
         </div>
 

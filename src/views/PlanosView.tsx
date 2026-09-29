@@ -5,13 +5,11 @@ import { Asset } from '../types';
 export const PlanosView: React.FC = () => {
   const { assets, openExecuteModal, viewAssetDetail } = useApp();
 
-  const [filterArea, setFilterArea] = useState<string>('all');
   const [filterCrit, setFilterCrit] = useState<string>('all');
   const [activeWindow, setActiveWindow] = useState<'semana' | 'mes' | 'todos'>('todos');
 
   // Filter assets
   const filteredAssets = assets.filter(asset => {
-    if (filterArea !== 'all' && asset.plantArea !== filterArea) return false;
     if (filterCrit !== 'all' && asset.criticality !== filterCrit) return false;
     if (activeWindow === 'semana' && asset.nextIntervention.daysRemaining > 7) return false;
     if (activeWindow === 'mes' && asset.nextIntervention.daysRemaining > 30) return false;
@@ -75,50 +73,28 @@ export const PlanosView: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex flex-col gap-2 bg-[#131b2e] border border-[#222a3d] p-3 rounded-xl">
-        <div className="flex items-center justify-between">
-          <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-            Janela Temporal
-          </span>
-          <div className="flex gap-1">
-            {[
-              { id: 'todos', label: 'Todos' },
-              { id: 'semana', label: 'Esta Semana' },
-              { id: 'mes', label: 'Este Mês' }
-            ].map(w => (
-              <button
-                key={w.id}
-                type="button"
-                onClick={() => setActiveWindow(w.id as any)}
-                className={`px-2.5 py-1 rounded-lg font-label-sm text-label-sm transition-all ${
-                  activeWindow === w.id
-                    ? 'bg-[#2563eb] text-[#eeefff] font-semibold'
-                    : 'bg-[#222a3d] text-[#c3c6d7]'
-                }`}
-              >
-                {w.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
-          <span className="font-label-sm text-label-sm text-[#8d90a0] uppercase whitespace-nowrap mr-1">
-            Área:
-          </span>
-          {['all', 'Linha 1', 'Linha 2', 'Utilidades', 'Estampagem', 'Usinagem'].map(area => (
+      {/* Filter Chips - Janela Temporal */}
+      <div className="flex items-center justify-between bg-[#131b2e] border border-[#222a3d] p-3 rounded-xl">
+        <span className="font-label-sm text-label-sm text-[#c3c6d7] uppercase font-semibold">
+          Janela Temporal
+        </span>
+        <div className="flex gap-1.5">
+          {[
+            { id: 'todos', label: 'Todos' },
+            { id: 'semana', label: 'Esta Semana' },
+            { id: 'mes', label: 'Este Mês' }
+          ].map(w => (
             <button
-              key={area}
+              key={w.id}
               type="button"
-              onClick={() => setFilterArea(area)}
-              className={`px-2.5 py-1 rounded-lg font-label-sm text-label-sm whitespace-nowrap transition-all ${
-                filterArea === area
-                  ? 'bg-[#2d3449] text-[#b4c5ff] font-bold border border-[#b4c5ff]/40'
-                  : 'bg-[#222a3d] text-[#c3c6d7]'
+              onClick={() => setActiveWindow(w.id as any)}
+              className={`px-3 py-1.5 rounded-lg font-label-sm text-label-sm transition-all ${
+                activeWindow === w.id
+                  ? 'bg-[#2563eb] text-[#eeefff] font-semibold shadow-sm'
+                  : 'bg-[#222a3d] text-[#c3c6d7] hover:text-white'
               }`}
             >
-              {area === 'all' ? 'Todas' : area}
+              {w.label}
             </button>
           ))}
         </div>
@@ -209,17 +185,20 @@ export const PlanosView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Task Details Box */}
-              <div className="bg-[#060e20] border border-[#222a3d] p-3 rounded-lg flex flex-col gap-1.5">
+              {/* Descritivo da Tarefa Box */}
+              <div className="bg-[#060e20] border border-[#222a3d] p-3 rounded-lg flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-label-sm text-[#8d90a0] uppercase">Procedimento Previsto</span>
+                  <span className="font-label-sm text-[#8d90a0] uppercase font-semibold">Descritivo da Tarefa</span>
                   <span className="font-label-sm text-[#b4c5ff]">
                     {asset.nextIntervention.frequencyLabel}
                   </span>
                 </div>
-                <div className="font-body-md text-body-md text-[#dae2fd] font-medium">
+                <div className="font-body-md text-body-md text-[#dae2fd] font-semibold">
                   {asset.nextIntervention.title}
                 </div>
+                <p className="text-xs text-[#c3c6d7] leading-relaxed bg-[#131b2e] p-2 rounded-md border border-[#1d263b]">
+                  {asset.routines.find(r => r.title === asset.nextIntervention.title)?.description || asset.routines[0]?.description || 'Inspeção técnica e manutenção preventiva operacional.'}
+                </p>
 
                 <div className="flex flex-col gap-1 pt-1 border-t border-[#171f33] text-xs text-[#c3c6d7]">
                   <div className="flex items-center justify-between">
