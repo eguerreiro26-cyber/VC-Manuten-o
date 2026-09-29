@@ -403,11 +403,12 @@ export function generateAssetDossierPdf(asset: Asset): void {
     { label: 'Criticidade:', val: `Classe ${asset.criticality} (Matriz RCM)` },
     { label: 'Fabricante:', val: asset.manufacturer || 'Não especificado' },
     { label: 'Nº de Série:', val: asset.serialNumber || 'N/A' },
-    { label: 'Horímetro:', val: asset.horimeter ? `${asset.horimeter} h` : 'Contínuo' },
+    { label: 'Última Intervenção:', val: asset.lastInterventionDate || 'Não registada' },
     { label: 'Próxima Intervenção:', val: asset.nextIntervention.title },
     { label: 'Data Limite:', val: `${asset.nextIntervention.dueDate} (${asset.nextIntervention.daysRemaining} dias)` },
     { label: 'Periodicidade:', val: asset.nextIntervention.frequencyLabel },
-    { label: 'Técnico Responsável:', val: asset.nextIntervention.assignedTech || 'Engenharia de Manutenção' }
+    { label: 'Técnico Responsável:', val: asset.nextIntervention.assignedTech || 'Engenharia de Manutenção' },
+    { label: 'Horímetro:', val: asset.horimeter ? `${asset.horimeter} h` : 'Contínuo' }
   ];
 
   const col1X = 18;

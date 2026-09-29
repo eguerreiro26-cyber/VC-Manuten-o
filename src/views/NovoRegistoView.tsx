@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset, Criticality, MaintenanceRoutine } from '../types';
+import { toInputDateFormat, formatDateToPt, calculateNextCycle } from '../utils/dateUtils';
 
 export const NovoRegistoView: React.FC = () => {
   const { addAsset, setActiveTab, showToast } = useApp();
@@ -18,9 +19,10 @@ export const NovoRegistoView: React.FC = () => {
   // Step 2: Criticidade FMEA
   const [criticality, setCriticality] = useState<Criticality>('A');
 
-  // Step 3: Periodicidade (sem quinzenal, com bienal 730 dias, sem horímetro)
+  // Step 3: Periodicidade & Tarefas
   const [frequencyDays, setFrequencyDays] = useState<number>(30);
   const [frequencyLabel, setFrequencyLabel] = useState<string>('Mensal (30 Dias)');
+  const [lastInterventionDate, setLastInterventionDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
 
   // Tasks checkboxes & details
   const [taskParts, setTaskParts] = useState(true);
@@ -141,10 +143,11 @@ export const NovoRegistoView: React.FC = () => {
       });
     }
 
-    const today = new Date();
-    const nextDate = new Date();
-    nextDate.setDate(today.getDate() + frequencyDays);
-    const formattedNextDate = `${nextDate.getDate().toString().padStart(2, '0')}/${(nextDate.getMonth() + 1).toString().padStart(2, '0')}/${nextDate.getFullYear()}`;
+    const cycle = calculateNextCycle(lastInterventionDate, frequencyDays);
+    const formattedLastDate = formatDateToPt(lastInterventionDate);
+    const formattedNextDate = cycle.dueDate;
+    const remainingDays = cycle.daysRemaining;
+    const isOverdue = remainingDays < 0;
 
     const sampleImages = [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuAiMQOYcOiYZ3zOIUd16s5DpiZnepp2AWEHjFz2Ot86Sn4gIoCr9zMGKeKTOoby2Zvr1FjUO_mqHrO8SXfTKfoM9VgFeiJXAhInQOdHjv5su7yf6EYpa9fGfCeplqJJtV8vkvH3D80BlbYgLKxC6YG5hFndoo-bAfFLtY4JLhE4Z60WRVy7l0QBzEXnyKTBCuBoiWU92ZkNDcnQJ6poq2_E1wOn8caQzXdoC5b_h-KQmqokEUgjZEOm',
@@ -161,25 +164,38 @@ export const NovoRegistoView: React.FC = () => {
       sector: sector ? `Vazamento Contínuo • ${sector}` : 'Vazamento Contínuo • SMS Concast',
       plantArea: 'SMS Concast',
       criticality,
-      status: 'Operacional',
-      statusLabel: `PLANO EM DIA (${frequencyDays} DIAS)`,
+      status: isOverdue ? 'Pendente' : 'Operacional',
+      statusLabel: isOverdue ? `MANUTENÇÃO VENCIDA (${Math.abs(remainingDays)}d)` : `PLANO EM DIA (${frequencyDays} DIAS)`,
       revCode: 'REV: 2024.1',
       imageUrl: chosenImage,
       manufacturer: manufacturer || 'SMS Concast / OEM',
       serialNumber: serialNumber || 'SN-' + Math.floor(100000 + Math.random() * 900000),
+      lastInterventionDate: formattedLastDate,
       nextIntervention: {
         frequencyLabel,
         frequencyDays,
         title: constructedRoutines[0]?.title || 'Revisão Preventiva Periódica',
         dueDate: formattedNextDate,
-        daysRemaining: frequencyDays,
+        daysRemaining: remainingDays,
         assignedTech: assignedTech.trim() || 'Equipa de Manutenção Mecânica'
       },
       routines: constructedRoutines,
-      history: []
+      history: lastInterventionDate ? [
+        {
+          id: 'h-' + Date.now(),
+          title: constructedRoutines[0]?.title || 'Manutenção Preventiva Periódica',
+          date: formattedLastDate,
+          notes: 'Registo de última intervenção homologado no cadastro inicial do ativo.',
+          technicianName: assignedTech.trim() || 'Equipa de Manutenção SMS Concast',
+          technicianRole: 'Técnico Responsável',
+          technicianReg: 'RUB-CONCAST',
+          verified: true
+        }
+      ] : []
     };
 
     addAsset(newAsset);
+    showToast(`Ativo ${newAsset.tag} registado com sucesso! Última intervenção: ${formattedLastDate}`);
     setActiveTab('equipamentos');
   };
 
@@ -554,6 +570,84 @@ export const NovoRegistoView: React.FC = () => {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Campo: Data da Última Intervenção (Pedido do Utilizador) */}
+              <div className="p-3.5 rounded-xl bg-[#060e20] border border-[#2d3449] flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-label-md text-label-md text-[#dae2fd] uppercase tracking-wide flex items-center gap-1.5 font-semibold">
+                    <span className="material-symbols-outlined text-[18px] text-[#ffb95f]">history</span>
+                    <span>Data da Última Intervenção</span>
+                    <span className="text-[#ffb4ab]">*</span>
+                  </label>
+                  <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-[#222a3d] text-[#b4c5ff] font-bold border border-[#2d3449]">
+                    {formatDateToPt(lastInterventionDate)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                  <div className="sm:col-span-2">
+                    <input
+                      type="date"
+                      value={lastInterventionDate}
+                      onChange={e => setLastInterventionDate(e.target.value)}
+                      required
+                      className="w-full min-h-[48px] px-3 bg-[#131b2e] text-[#4edea3] font-mono font-bold text-base rounded-lg border border-[#2d3449] focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 sm:col-span-1">
+                    <button
+                      type="button"
+                      onClick={() => setLastInterventionDate(new Date().toISOString().split('T')[0])}
+                      className="flex-1 min-h-[48px] px-2 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-[#c3c6d7] text-xs font-semibold flex items-center justify-center gap-1 border border-[#2d3449]"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">today</span>
+                      Hoje
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - 30);
+                        setLastInterventionDate(d.toISOString().split('T')[0]);
+                      }}
+                      className="flex-1 min-h-[48px] px-2 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-[#c3c6d7] text-xs font-semibold flex items-center justify-center border border-[#2d3449]"
+                    >
+                      -30d
+                    </button>
+                  </div>
+                </div>
+
+                {/* Ciclo Dinâmico Calculado em Tempo Real */}
+                {(() => {
+                  const cycle = calculateNextCycle(lastInterventionDate, frequencyDays);
+                  const isOver = cycle.daysRemaining < 0;
+                  const isWarn = cycle.daysRemaining >= 0 && cycle.daysRemaining <= 5;
+                  return (
+                    <div className="p-2.5 rounded-lg bg-[#131b2e] border border-[#222a3d] flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-[#c3c6d7]">
+                        <span className="material-symbols-outlined text-[16px] text-[#4edea3]">event_upcoming</span>
+                        <span>Próxima Manutenção Prevista:</span>
+                        <strong className="text-[#dae2fd] font-mono">{cycle.dueDate}</strong>
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 rounded font-mono font-bold ${
+                          isOver
+                            ? 'bg-[#93000a]/30 text-[#ffb4ab] border border-[#93000a]'
+                            : isWarn
+                            ? 'bg-[#ffb95f]/20 text-[#ffb95f] border border-[#ffb95f]/40'
+                            : 'bg-[#4edea3]/20 text-[#4edea3] border border-[#4edea3]/40'
+                        }`}
+                      >
+                        {isOver
+                          ? `Vencida (${Math.abs(cycle.daysRemaining)}d)`
+                          : isWarn
+                          ? `Expira em ${cycle.daysRemaining} dias`
+                          : `${cycle.daysRemaining} dias restantes`}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Tasks package */}

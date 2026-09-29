@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset } from '../types';
 import { generateAssetDossierPdf } from '../utils/pdfGenerator';
+import { EditAssetModal } from '../components/EditAssetModal';
 
 interface DetalheProps {
   assetId: string;
@@ -14,6 +15,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
 
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [showDossierModal, setShowDossierModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   if (!asset) {
     return (
@@ -131,7 +133,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                 <span className="material-symbols-outlined text-[13px]">history</span> ÚLTIMA
               </span>
               <span className="font-label-md text-label-md text-[#c3c6d7] font-medium mt-1 truncate">
-                {asset.lastInterventionDate || '15/Out/24'}
+                {asset.lastInterventionDate || 'Não registada'}
               </span>
             </div>
             <div className="bg-[#171f33] rounded-lg p-2.5 flex flex-col justify-between border border-[#2d3449]">
@@ -389,10 +391,10 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => showToast('Abrindo editor de parâmetros do ativo...')}
+            onClick={() => setIsEditing(true)}
             className="h-11 rounded-lg bg-[#222a3d] text-[#dae2fd] font-label-md text-label-md flex items-center justify-center gap-1.5 active:bg-[#2d3449] hover:bg-[#2d3449]/80 transition-all border border-[#2d3449]"
           >
-            <span className="material-symbols-outlined text-[18px]">edit_note</span>
+            <span className="material-symbols-outlined text-[18px] text-[#b4c5ff]">edit_note</span>
             <span>Editar Parâmetros</span>
           </button>
 
@@ -406,6 +408,13 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
           </button>
         </div>
       </div>
+
+      {/* Modal de Edição de Ativo (permite alterar data de última intervenção) */}
+      <EditAssetModal
+        asset={asset}
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+      />
 
       {/* Printable Technical Dossier Modal */}
       {showDossierModal && (
@@ -454,6 +463,12 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                 </div>
                 <div>
                   <strong>Vida Útil:</strong> {vidaUtilPct}% ({remainingDays} dias restantes)
+                </div>
+                <div>
+                  <strong>Última Intervenção:</strong> {asset.lastInterventionDate || 'Não registada'}
+                </div>
+                <div>
+                  <strong>Próxima Intervenção:</strong> {asset.nextIntervention.dueDate}
                 </div>
                 <div>
                   <strong>Fabricante:</strong> {asset.manufacturer || 'N/A'}

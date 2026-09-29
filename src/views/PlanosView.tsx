@@ -221,16 +221,20 @@ export const PlanosView: React.FC = () => {
                   {asset.nextIntervention.title}
                 </div>
 
-                <div className="flex items-center justify-between pt-1 border-t border-[#171f33] text-xs text-[#c3c6d7]">
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[15px] text-[#4edea3]">
-                      person
+                <div className="flex flex-col gap-1 pt-1 border-t border-[#171f33] text-xs text-[#c3c6d7]">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-[#8d90a0]">
+                      <span className="material-symbols-outlined text-[14px] text-[#ffb95f]">history</span>
+                      Última: <strong className="text-[#dae2fd] font-mono">{asset.lastInterventionDate || 'Não registada'}</strong>
                     </span>
-                    {asset.nextIntervention.assignedTech || 'Equipa de Turno'}
-                  </span>
-                  <span className="font-mono font-bold text-[#dae2fd]">
-                    Data: {asset.nextIntervention.dueDate}
-                  </span>
+                    <span className="font-mono font-bold text-[#4edea3]">
+                      Próxima: {asset.nextIntervention.dueDate}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-[#8d90a0]">
+                    <span className="material-symbols-outlined text-[13px] text-[#4edea3]">person</span>
+                    <span>Resp: {asset.nextIntervention.assignedTech || 'Equipa de Turno'}</span>
+                  </div>
                 </div>
               </div>
 

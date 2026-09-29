@@ -388,6 +388,16 @@ export const EquipamentosView: React.FC = () => {
                   <p className="font-body-sm text-body-sm text-[#dae2fd] font-medium mt-0.5 line-clamp-1">
                     {asset.nextIntervention.title}
                   </p>
+                  <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-[#222a3d] text-[#c3c6d7]">
+                    <span className="flex items-center gap-1 text-[#8d90a0]">
+                      <span className="material-symbols-outlined text-[13px] text-[#ffb95f]">history</span>
+                      Última: <strong className="text-[#dae2fd] font-mono">{asset.lastInterventionDate || 'Não registada'}</strong>
+                    </span>
+                    <span className="flex items-center gap-1 text-[#4edea3]">
+                      <span className="material-symbols-outlined text-[13px]">event</span>
+                      Prevista: <strong className="font-mono">{asset.nextIntervention.dueDate}</strong>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Glove-friendly Touch Targets */}

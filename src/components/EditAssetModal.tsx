@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset, Criticality, AssetStatus } from '../types';
+import { toInputDateFormat, formatDateToPt, calculateNextCycle } from '../utils/dateUtils';
 
 interface EditAssetModalProps {
   asset: Asset | null;
@@ -29,6 +30,9 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
   const [imageUrl, setImageUrl] = useState('');
   const [revCode, setRevCode] = useState('');
 
+  // Last intervention
+  const [lastIntervDate, setLastIntervDate] = useState('');
+
   // Next intervention
   const [intervTitle, setIntervTitle] = useState('');
   const [intervFreqLabel, setIntervFreqLabel] = useState('Bienal (730 Dias)');
@@ -52,6 +56,8 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
       setImageUrl(asset.imageUrl || PRESET_IMAGES[0].url);
       setRevCode(asset.revCode || 'REV: 2024.1');
 
+      setLastIntervDate(toInputDateFormat(asset.lastInterventionDate));
+
       setIntervTitle(asset.nextIntervention.title);
       setIntervFreqLabel(asset.nextIntervention.frequencyLabel);
       setIntervFreqDays(asset.nextIntervention.frequencyDays || 30);
@@ -66,12 +72,29 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
 
   const handlePeriodicityChange = (val: string) => {
     setIntervFreqLabel(val);
-    if (val.includes('730')) setIntervFreqDays(730);
-    else if (val.includes('365')) setIntervFreqDays(365);
-    else if (val.includes('180')) setIntervFreqDays(180);
-    else if (val.includes('90')) setIntervFreqDays(90);
-    else if (val.includes('30')) setIntervFreqDays(30);
-    else if (val.includes('7')) setIntervFreqDays(7);
+    let days = 30;
+    if (val.includes('730')) days = 730;
+    else if (val.includes('365')) days = 365;
+    else if (val.includes('180')) days = 180;
+    else if (val.includes('90')) days = 90;
+    else if (val.includes('30')) days = 30;
+    else if (val.includes('7')) days = 7;
+    setIntervFreqDays(days);
+
+    // Auto-update next due date if last intervention date is present
+    if (lastIntervDate) {
+      const cycle = calculateNextCycle(lastIntervDate, days);
+      setIntervDueDate(cycle.dueDate);
+      setIntervDaysRemaining(cycle.daysRemaining);
+    }
+  };
+
+  const handleRecalculateCycle = (baseDate: string, days: number = intervFreqDays) => {
+    if (!baseDate) return;
+    const cycle = calculateNextCycle(baseDate, days);
+    setIntervDueDate(cycle.dueDate);
+    setIntervDaysRemaining(cycle.daysRemaining);
+    showToast(`Próxima data recalculada: ${cycle.dueDate} (${cycle.daysRemaining} dias)`);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -81,6 +104,8 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
       showToast('Tag e Nome do equipamento são obrigatórios.');
       return;
     }
+
+    const formattedLastDate = formatDateToPt(lastIntervDate);
 
     updateAsset(asset.id, {
       tag: tag.trim(),
@@ -94,6 +119,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
       serialNumber: serialNumber.trim(),
       imageUrl: imageUrl.trim() || asset.imageUrl,
       revCode: revCode.trim(),
+      lastInterventionDate: formattedLastDate,
       nextIntervention: {
         title: intervTitle.trim() || 'Alinhamento e Equilibragem',
         frequencyLabel: intervFreqLabel,
@@ -104,7 +130,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
       }
     });
 
-    showToast(`Equipamento ${tag} atualizado com sucesso!`);
+    showToast(`Equipamento ${tag} atualizado com sucesso! Data de última intervenção: ${formattedLastDate}`);
     onClose();
   };
 
@@ -345,12 +371,70 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
               </div>
             </div>
 
-            {/* Seção 3: Plano e Próxima Intervenção */}
+            {/* Seção 3: Plano e Intervenções */}
             <div className="bg-[#131b2e] p-3.5 sm:p-4 rounded-xl border border-[#222a3d] flex flex-col gap-3">
               <span className="font-label-sm text-label-sm text-[#4edea3] uppercase font-semibold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">event_repeat</span>
-                Próxima Intervenção & Agendamento
+                Plano de Manutenção & Intervenções
               </span>
+
+              {/* Data da Última Intervenção (Pedido do Utilizador) */}
+              <div className="p-3 rounded-lg bg-[#060e20] border border-[#2d3449] flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-label-sm text-label-sm text-[#dae2fd] uppercase font-semibold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-[#ffb95f]">history</span>
+                    Data da Última Intervenção
+                  </label>
+                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-[#222a3d] text-[#b4c5ff] font-bold">
+                    {lastIntervDate ? formatDateToPt(lastIntervDate) : 'Não registada'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                  <div className="sm:col-span-2">
+                    <input
+                      type="date"
+                      value={lastIntervDate}
+                      onChange={e => {
+                        const newDate = e.target.value;
+                        setLastIntervDate(newDate);
+                        if (newDate) {
+                          const cycle = calculateNextCycle(newDate, intervFreqDays);
+                          setIntervDueDate(cycle.dueDate);
+                          setIntervDaysRemaining(cycle.daysRemaining);
+                        }
+                      }}
+                      className="w-full min-h-[42px] px-3 bg-[#171f33] text-[#4edea3] font-mono font-bold text-sm rounded-lg border border-[#2d3449] focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:col-span-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const todayStr = new Date().toISOString().split('T')[0];
+                        setLastIntervDate(todayStr);
+                        handleRecalculateCycle(todayStr, intervFreqDays);
+                      }}
+                      className="flex-1 min-h-[42px] px-2 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-[#c3c6d7] text-xs font-semibold flex items-center justify-center gap-1 border border-[#2d3449]"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">today</span>
+                      Hoje
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRecalculateCycle(lastIntervDate, intervFreqDays)}
+                      title="Recalcular Próxima Intervenção a partir desta data"
+                      className="min-h-[42px] px-2.5 rounded-lg bg-[#2563eb]/20 hover:bg-[#2563eb]/30 text-[#b4c5ff] text-xs font-semibold flex items-center justify-center gap-1 border border-[#2563eb]/40"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">sync</span>
+                      Recalcular
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#8d90a0]">
+                  Ao alterar a data da última intervenção, a data prevista e os dias restantes da próxima intervenção são atualizados com base no ciclo.
+                </p>
+              </div>
 
               <div className="flex flex-col gap-1">
                 <label className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
@@ -387,14 +471,14 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
 
                 <div className="flex flex-col gap-1">
                   <label className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-                    Data Prevista
+                    Data Prevista (Próxima)
                   </label>
                   <input
                     type="text"
                     value={intervDueDate}
                     onChange={e => setIntervDueDate(e.target.value)}
                     placeholder="Ex: 15/Nov/2026"
-                    className="min-h-[42px] px-3 bg-[#060e20] text-[#dae2fd] rounded-lg border border-[#2d3449] focus:outline-none"
+                    className="min-h-[42px] px-3 bg-[#060e20] text-[#dae2fd] font-mono rounded-lg border border-[#2d3449] focus:outline-none"
                   />
                 </div>
 
