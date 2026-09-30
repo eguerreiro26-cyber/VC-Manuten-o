@@ -73,12 +73,15 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
   const handlePeriodicityChange = (val: string) => {
     setIntervFreqLabel(val);
     let days = 30;
-    if (val.includes('730')) days = 730;
-    else if (val.includes('365')) days = 365;
-    else if (val.includes('180')) days = 180;
-    else if (val.includes('90')) days = 90;
-    else if (val.includes('30')) days = 30;
-    else if (val.includes('7')) days = 7;
+    if (val.includes('1460') || val.includes('48')) days = 1460;
+    else if (val.includes('1095') || val.includes('36')) days = 1095;
+    else if (val.includes('730') || val.includes('Bienal')) days = 730;
+    else if (val.includes('540') || val.includes('18')) days = 540;
+    else if (val.includes('365') || val.includes('Anual')) days = 365;
+    else if (val.includes('180') || val.includes('Semestral')) days = 180;
+    else if (val.includes('90') || val.includes('Trimestral')) days = 90;
+    else if (val.includes('30') || val.includes('Mensal')) days = 30;
+    else if (val.includes('7') || val.includes('Semanal')) days = 7;
     setIntervFreqDays(days);
 
     // Auto-update next due date if last intervention date is present
@@ -438,7 +441,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
 
               <div className="flex flex-col gap-1">
                 <label className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-                  Procedimento Previsto (Título) *
+                  Descritivo da Tarefa (Título) *
                 </label>
                 <input
                   type="text"
@@ -460,12 +463,15 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
                     onChange={e => handlePeriodicityChange(e.target.value)}
                     className="min-h-[42px] px-2 bg-[#060e20] text-[#dae2fd] rounded-lg border border-[#2d3449] focus:outline-none"
                   >
-                    <option value="Bienal (730 Dias)">Bienal (730 Dias)</option>
-                    <option value="Anual (365 Dias)">Anual (365 Dias)</option>
-                    <option value="Semestral (180 Dias)">Semestral (180 Dias)</option>
-                    <option value="Trimestral (90 Dias)">Trimestral (90 Dias)</option>
-                    <option value="Mensal (30 Dias)">Mensal (30 Dias)</option>
                     <option value="Semanal (7 Dias)">Semanal (7 Dias)</option>
+                    <option value="Mensal (30 Dias)">Mensal (30 Dias)</option>
+                    <option value="Trimestral (90 Dias)">Trimestral (90 Dias)</option>
+                    <option value="Semestral (180 Dias)">Semestral (180 Dias)</option>
+                    <option value="Anual (365 Dias)">Anual (365 Dias)</option>
+                    <option value="18 Meses (540 Dias)">18 Meses (540 Dias)</option>
+                    <option value="Bienal (730 Dias)">Bienal (730 Dias)</option>
+                    <option value="36 Meses (1095 Dias)">36 Meses (1095 Dias)</option>
+                    <option value="48 Meses (1460 Dias)">48 Meses (1460 Dias)</option>
                   </select>
                 </div>
 

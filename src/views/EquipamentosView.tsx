@@ -17,7 +17,8 @@ export const EquipamentosView: React.FC = () => {
   const critACount = assets.filter(a => a.criticality === 'A').length;
   const pendingCount = assets.filter(a => a.status === 'Pendente' || a.nextIntervention.daysRemaining <= 0).length;
   const operCount = assets.filter(a => a.status === 'Operacional').length;
-  const monthInterventionsCount = 5 + assets.reduce((acc, a) => acc + (a.history?.length || 0), 0);
+  // Intervenções com prazo previsto dentro do mês (próximos 30 dias ou já em atraso)
+  const monthInterventionsCount = assets.filter(a => a.nextIntervention.daysRemaining <= 30).length;
 
   // Filter logic
   const filteredAssets = useMemo(() => {
@@ -98,9 +99,12 @@ export const EquipamentosView: React.FC = () => {
         </div>
 
         <div className="flex flex-col p-2.5 rounded-xl bg-[#131b2e] border border-[#222a3d] shadow-sm justify-between min-h-[76px]">
-          <span className="font-label-sm text-label-sm text-[#ffb95f] uppercase tracking-wider">
-            No Mês
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="font-label-sm text-label-sm text-[#ffb95f] uppercase tracking-wider">
+              No Mês
+            </span>
+            <span className="text-[10px] text-[#8d90a0] font-mono">próx. 30d</span>
+          </div>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="font-headline-md text-headline-md text-[#ffb95f] font-bold">
               {monthInterventionsCount.toString().padStart(2, '0')}
@@ -108,7 +112,10 @@ export const EquipamentosView: React.FC = () => {
             <span className="font-label-sm text-label-sm text-[#c3c6d7]">interv.</span>
           </div>
           <div className="w-full bg-[#171f33] h-1 rounded-full mt-2 overflow-hidden">
-            <div className="bg-[#ffb95f] h-full w-[40%]"></div>
+            <div
+              className="bg-[#ffb95f] h-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.round((monthInterventionsCount / (totalCount || 1)) * 100))}%` }}
+            ></div>
           </div>
         </div>
       </section>

@@ -550,7 +550,10 @@ export const NovoRegistoView: React.FC = () => {
                     { label: 'Trimestral', days: 90, desc: '90 Dias' },
                     { label: 'Semestral', days: 180, desc: '180 Dias' },
                     { label: 'Anual', days: 365, desc: '365 Dias' },
-                    { label: 'Bienal', days: 730, desc: '730 Dias' }
+                    { label: '18 Meses', days: 540, desc: '540 Dias' },
+                    { label: 'Bienal', days: 730, desc: '730 Dias' },
+                    { label: '36 Meses', days: 1095, desc: '1095 Dias' },
+                    { label: '48 Meses', days: 1460, desc: '1460 Dias' }
                   ].map(f => {
                     const isSelected = frequencyDays === f.days;
                     return (
