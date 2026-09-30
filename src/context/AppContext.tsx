@@ -11,6 +11,11 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, testFirestoreConnection } from '../firebase';
+import {
+  syncAssetToSupabase,
+  syncAllAssetsToSupabase,
+  removerEquipamento
+} from '../supabaseSync';
 
 interface AppContextType {
   assets: Asset[];
@@ -22,6 +27,7 @@ interface AppContextType {
   addAsset: (asset: Asset) => void;
   updateAsset: (id: string, partial: Partial<Asset>) => void;
   deleteAsset: (id: string) => void;
+  syncAllToSupabase: () => Promise<void>;
   completeMaintenance: (
     assetId: string,
     interventionTitle: string,
@@ -298,11 +304,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     setSyncStatus('syncing');
-    showToast('A sincronizar com a base de dados em nuvem...');
+    showToast('A sincronizar com a base de dados em nuvem e Supabase...');
+    syncAllAssetsToSupabase(assets);
     setTimeout(() => {
       setSyncStatus('synced');
-      showToast('Base de dados em nuvem sincronizada em tempo real!');
+      showToast('Base de dados em nuvem e Supabase sincronizados!');
     }, 800);
+  };
+
+  const syncAllToSupabase = async () => {
+    showToast('A sincronizar com Supabase...');
+    const results = await syncAllAssetsToSupabase(assets);
+    const successCount = results.filter(
+      r => r.status === 'fulfilled' && (r.value as any)?.success !== false
+    ).length;
+    showToast(`${successCount}/${assets.length} equipamentos sincronizados com o Supabase!`);
   };
 
   const viewAssetDetail = (id: string) => {
@@ -315,6 +331,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAssets(prev => [cleanAsset, ...prev]);
     showToast(`Ativo ${newAsset.tag} gravado na nuvem com sucesso!`);
 
+    // Sincronizar com o Supabase
+    syncAssetToSupabase(cleanAsset);
+
     const path = `assets/${cleanAsset.id}`;
     try {
       await setDoc(doc(db, 'assets', cleanAsset.id), cleanAsset);
@@ -325,9 +344,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateAsset = async (id: string, partial: Partial<Asset>) => {
     const cleanPartial = cleanForFirestore(partial);
+    let fullUpdated: Asset | undefined;
     setAssets(prev =>
-      prev.map(asset => (asset.id === id ? { ...asset, ...cleanPartial } : asset))
+      prev.map(asset => {
+        if (asset.id === id) {
+          fullUpdated = { ...asset, ...cleanPartial };
+          return fullUpdated;
+        }
+        return asset;
+      })
     );
+
+    // Sincronizar com o Supabase
+    if (fullUpdated) {
+      syncAssetToSupabase(fullUpdated);
+    }
 
     const path = `assets/${id}`;
     try {
@@ -343,6 +374,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (selectedAssetId === id) {
       setSelectedAssetId(null);
     }
+
+    // Remover do Supabase
+    removerEquipamento(id);
 
     const path = `assets/${id}`;
     try {
@@ -454,6 +488,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isOfflineMode,
         setIsOfflineMode,
         triggerManualSync,
+        syncAllToSupabase,
         resetToInitialData,
         toastMessage,
         showToast,

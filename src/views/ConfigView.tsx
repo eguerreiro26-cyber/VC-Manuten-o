@@ -11,6 +11,7 @@ export const ConfigView: React.FC = () => {
     isOfflineMode,
     setIsOfflineMode,
     triggerManualSync,
+    syncAllToSupabase,
     showToast,
     assets,
     technicians,
@@ -299,6 +300,53 @@ export const ConfigView: React.FC = () => {
             onChange={e => setIsOfflineMode(e.target.checked)}
             className="w-6 h-6 rounded accent-[#2563eb] cursor-pointer"
           />
+        </div>
+      </div>
+
+      {/* 5. Base Partilhada Supabase */}
+      <div className="bg-[#131b2e] border border-[#222a3d] rounded-xl p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between pb-1 border-b border-[#222a3d]">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#4edea3] text-[20px]">database</span>
+            <div>
+              <span className="font-headline-sm text-headline-sm text-[#dae2fd] text-base">
+                Base Partilhada Supabase
+              </span>
+              <span className="block text-xs text-[#8d90a0]">
+                Tabela `equipamentos` sincronizada via API em tempo real
+              </span>
+            </div>
+          </div>
+          <span className="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-[#060e20] text-[#4edea3] font-mono border border-[#222a3d] flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse"></span>
+            nvhtpyeevtfwcyqapejg
+          </span>
+        </div>
+
+        <div className="p-3 rounded-lg bg-[#060e20] border border-[#222a3d] flex flex-col gap-2">
+          <div className="flex flex-wrap items-center justify-between text-xs gap-1">
+            <span className="text-[#8d90a0]">Endpoint Supabase:</span>
+            <span className="font-mono text-[#b4c5ff]">https://nvhtpyeevtfwcyqapejg.supabase.co</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-between text-xs gap-1">
+            <span className="text-[#8d90a0]">Modo de sincronização:</span>
+            <span className="text-[#4edea3] font-medium">Automático ao criar, editar ou apagar ativos</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-between text-xs gap-1">
+            <span className="text-[#8d90a0]">Função de integração:</span>
+            <span className="font-mono text-[#ffb95f]">syncEquipamento(...) & removerEquipamento(...)</span>
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-1">
+          <button
+            type="button"
+            onClick={syncAllToSupabase}
+            className="min-h-[42px] px-4 rounded-lg bg-[#2563eb] text-[#eeefff] font-label-md text-label-md font-bold hover:bg-[#1d4ed8] active:scale-95 transition-all flex items-center gap-2 shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[18px]">sync</span>
+            <span>Sincronizar Todos os Equipamentos com Supabase</span>
+          </button>
         </div>
       </div>
 
