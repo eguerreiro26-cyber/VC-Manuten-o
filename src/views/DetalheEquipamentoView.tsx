@@ -172,7 +172,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
         </div>
       </div>
 
-      {/* Interactive Section: Plano de Manutenção Cadastrado */}
+      {/* Interactive Section: Plano de Manutenção Registado */}
       <div className="flex flex-col gap-2 pt-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
         <div className="flex flex-col gap-2.5">
           {asset.routines.length === 0 ? (
             <div className="p-4 bg-[#131b2e] rounded-xl text-center text-[#c3c6d7] text-sm">
-              Sem rotinas cadastradas para este ativo.
+              Sem rotinas registadas para este ativo.
             </div>
           ) : (
             asset.routines.map(routine => {
@@ -408,7 +408,7 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                   <strong>Equipamento:</strong> {asset.name}
                 </div>
                 <div>
-                  <strong>Setor:</strong> {asset.sector}
+                  <strong>Sector:</strong> {asset.sector}
                 </div>
                 <div>
                   <strong>Criticidade:</strong> Classe {asset.criticality}
@@ -449,8 +449,8 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
               </div>
 
               <div className="pt-3 border-t border-black flex justify-between items-center text-[10px]">
-                <span>Status de Conformidade: Homologado</span>
-                <span className="font-bold">Rubrica Eletrônica: #SHA-256-{asset.tag}</span>
+                <span>Estado de Conformidade: Homologado</span>
+                <span className="font-bold">Rubrica Eletrónica: #SHA-256-{asset.tag}</span>
               </div>
             </div>
 

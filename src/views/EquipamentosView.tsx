@@ -163,9 +163,9 @@ export const EquipamentosView: React.FC = () => {
         {showFilterDrawer && (
           <div className="p-3 bg-[#171f33] rounded-xl border border-[#2d3449] flex flex-wrap gap-1.5 animate-in slide-in-from-top-2 duration-150">
             <span className="w-full font-label-sm text-label-sm text-[#8d90a0] uppercase mb-1">
-              Filtrar por Área / Setor Fabril:
+              Filtrar por Área / Sector Fabril:
             </span>
-            {['all', 'Linha 1', 'Linha 2', 'Utilidades', 'Estampagem', 'Usinagem'].map(area => (
+            {['all', 'Linha 1', 'Linha 2', 'Utilidades', 'Estampagem', 'Maquinagem'].map(area => (
               <button
                 key={area}
                 type="button"

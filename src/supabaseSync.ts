@@ -30,7 +30,7 @@ export function mapAssetToSupabaseEquipamento(asset: Asset): SupabaseEquipamento
   if (asset.criticality === 'B') criticidadeStr = 'Média';
   else if (asset.criticality === 'C') criticidadeStr = 'Baixa';
 
-  // Área / Setor
+  // Área / Sector
   const area = asset.plantArea || asset.sector || 'Vazamento Contínuo';
 
   // Tipo de intervenção

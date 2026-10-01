@@ -32,10 +32,10 @@ export const NovoRegistoView: React.FC = () => {
   const [taskValvesDetail, setTaskValvesDetail] = useState('Válvulas reguladoras de caudal e pressostatos de refrigeração');
 
   const [taskLube, setTaskLube] = useState(true);
-  const [taskLubeDetail, setTaskLubeDetail] = useState('Graxa sintética de poliureia de alta temperatura (purgar linhas)');
+  const [taskLubeDetail, setTaskLubeDetail] = useState('Massa sintética de poliureia de alta temperatura (purgar linhas)');
 
   const [taskThermo, setTaskThermo] = useState(true);
-  const [taskThermoDetail, setTaskThermoDetail] = useState('Inspeção termográfica de mancais e ensaio não destrutivo');
+  const [taskThermoDetail, setTaskThermoDetail] = useState('Inspeção termográfica de chumaceiras e ensaio não destrutivo');
 
   // Task 5: Alinhamento e Equilibragem
   const [taskAlignment, setTaskAlignment] = useState(false);
@@ -111,11 +111,11 @@ export const NovoRegistoView: React.FC = () => {
         id: 'r-' + Date.now() + '-3',
         code: 'LUB-01',
         type: 'Lubrificação',
-        title: 'Lubrificação & Engraxamento',
+        title: 'Lubrificação & Aplicação de Massa',
         description: taskLubeDetail,
         periodicityLabel: frequencyLabel,
         periodicityDays: frequencyDays,
-        toleranceOrSpec: 'Graxa Poliureia NLGI 2'
+        toleranceOrSpec: 'Massa Poliureia NLGI 2'
       });
     }
     if (taskThermo) {
@@ -185,7 +185,7 @@ export const NovoRegistoView: React.FC = () => {
           id: 'h-' + Date.now(),
           title: constructedRoutines[0]?.title || 'Manutenção Preventiva Periódica',
           date: formattedLastDate,
-          notes: 'Registo de última intervenção homologado no cadastro inicial do ativo.',
+          notes: 'Registo de última intervenção homologado no registo inicial do ativo.',
           technicianName: assignedTech.trim() || 'Equipa de Manutenção SMS Concast',
           technicianRole: 'Técnico Responsável',
           technicianReg: 'RUB-CONCAST',
@@ -209,7 +209,7 @@ export const NovoRegistoView: React.FC = () => {
               app_registration
             </span>
             <div>
-              <h2 className="font-headline-sm text-headline-sm text-[#dae2fd]">Cadastro de Ativo</h2>
+              <h2 className="font-headline-sm text-headline-sm text-[#dae2fd]">Registo de Ativo</h2>
               <p className="font-label-sm text-label-sm text-[#c3c6d7] uppercase tracking-wider">
                 Vazamento Contínuo • SN Seixal - SMS Concast
               </p>
@@ -258,7 +258,7 @@ export const NovoRegistoView: React.FC = () => {
                   Identificação & Origem
                 </span>
                 <span className="font-label-sm text-label-sm text-[#c3c6d7]">
-                  Tag, designação, fabricante e setor
+                  Tag, designação, fabricante e sector
                 </span>
               </div>
             </div>
@@ -316,10 +316,10 @@ export const NovoRegistoView: React.FC = () => {
                 />
               </div>
 
-              {/* Setor Específico (Vazamento Contínuo) */}
+              {/* Sector Específico (Vazamento Contínuo) */}
               <div className="flex flex-col gap-1">
                 <label className="font-label-md text-label-md text-[#dae2fd] uppercase tracking-wide">
-                  Setor / Seção do Vazamento Contínuo
+                  Sector / Secção do Vazamento Contínuo
                 </label>
                 <input
                   type="text"
@@ -383,7 +383,7 @@ export const NovoRegistoView: React.FC = () => {
                   Classificação de Risco (FMEA)
                 </span>
                 <span className="font-label-sm text-label-sm text-[#c3c6d7]">
-                  Matriz de severidade operacional no vazamento
+                  Matriz de severidade operacional no vazamento contínuo
                 </span>
               </div>
             </div>
@@ -735,7 +735,7 @@ export const NovoRegistoView: React.FC = () => {
                         <span className="material-symbols-outlined text-[18px] text-[#ffb95f]">
                           oil_barrel
                         </span>
-                        Lubrificação & Engraxamento
+                        Lubrificação & Aplicação de Massa
                       </span>
                     </div>
                   </label>
@@ -745,7 +745,7 @@ export const NovoRegistoView: React.FC = () => {
                         type="text"
                         value={taskLubeDetail}
                         onChange={e => setTaskLubeDetail(e.target.value)}
-                        placeholder="Especificação de graxa ou óleo sintético de alta temperatura..."
+                        placeholder="Especificação de massa lubrificante ou óleo sintético de alta temperatura..."
                         className="w-full min-h-[42px] px-3 bg-[#222a3d] text-[#dae2fd] font-body-sm text-body-sm rounded-lg border border-[#2d3449] focus:outline-none"
                       />
                     </div>

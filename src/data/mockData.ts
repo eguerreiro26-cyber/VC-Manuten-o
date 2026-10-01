@@ -32,7 +32,7 @@ export const INITIAL_ASSETS: Asset[] = [
         description: 'Varrimento volumétrico dos dentes da coroa e parafusos pré-tensionados M36 de fixação à base civil',
         periodicityLabel: 'Semestral (180 Dias)',
         periodicityDays: 180,
-        toleranceOrSpec: 'Norma ISO 9712 Nível 2 / Ausência de microtrincas',
+        toleranceOrSpec: 'Norma ISO 9712 Nível 2 / Ausência de microfissuras',
         standardInstrumentOrPart: 'Aparelho de Ultrassons Olympus Epoch 650',
         instructions: [
           'Limpeza desengordurante do anel periférico e dentes de engrenamento.',
@@ -59,14 +59,14 @@ export const INITIAL_ASSETS: Asset[] = [
         id: 'r-tur-03',
         code: 'LUB-01',
         type: 'Lubrificação',
-        title: 'Engraxamento Centralizado dos Rolamentos e Acionamento de Giro',
+        title: 'Lubrificação Centralizada dos Rolamentos e Acionamento de Giro',
         description: 'Injeção de massa de extrema pressão com bissulfeto de molibdénio no rolamento de rotação',
         periodicityLabel: 'Mensal (30 Dias)',
         periodicityDays: 30,
-        toleranceOrSpec: 'Graxa de Complexo de Lítio NLGI 2 com MoS2',
+        toleranceOrSpec: 'Massa de Complexo de Lítio NLGI 2 com MoS2',
         standardInstrumentOrPart: 'Mobilgrease XHP 222 Special',
         instructions: [
-          'Fazer rotação lenta da torre de 360° durante o ciclo de engraxamento.',
+          'Fazer rotação lenta da torre de 360° durante o ciclo de lubrificação.',
           'Confirmar purga limpa pelos vedantes labiais de contenção.'
         ]
       }
@@ -78,7 +78,7 @@ export const INITIAL_ASSETS: Asset[] = [
         date: '28/Mai/2026',
         notes: 'Varrimento volumétrico efetuado a 100% da coroa. Ausência de descontinuidades superficiais ou fadiga nos parafusos M36 classe 10.9.',
         technicianName: 'Engª Mariana Silva Sequeira',
-        technicianRole: 'Engenheira de Manutenção e Confiabilidade',
+        technicianRole: 'Engenheira de Manutenção e Fiabilidade',
         technicianReg: 'ENG-8841',
         verified: true
       }
@@ -101,7 +101,7 @@ export const INITIAL_ASSETS: Asset[] = [
     nextIntervention: {
       frequencyLabel: 'Trimestral (90 Dias)',
       frequencyDays: 90,
-      title: 'Revisão dos Cilindros Hidráulicos de Elevação e Freios de Translação',
+      title: 'Revisão dos Cilindros Hidráulicos de Elevação e Travões de Translação',
       dueDate: '10/Nov/2026',
       daysRemaining: 43,
       assignedTech: 'Rui Miguel Baptista'
@@ -142,7 +142,7 @@ export const INITIAL_ASSETS: Asset[] = [
     history: [
       {
         id: 'h-car-01',
-        title: 'Troca de pastilhas de travão do motor de translação',
+        title: 'Substituição das pastilhas de travão do motor de translação',
         date: '12/Ago/2026',
         notes: 'Substituídas as sapatas de travão eletromecânico e regulado o entreferro para 0.40 mm.',
         technicianName: 'Rui Miguel Baptista',
@@ -180,7 +180,7 @@ export const INITIAL_ASSETS: Asset[] = [
         code: 'MEC-01',
         type: 'Substituição',
         title: 'Substituição de Placas Refratárias da Gaveta',
-        description: 'Desmontagem e montagem de placas cerâmicas de zircónia/alumina com graxa refratária de grafite',
+        description: 'Desmontagem e montagem de placas cerâmicas de zircónia/alumina com massa refratária de grafite',
         periodicityLabel: 'Semanal (7 Dias)',
         periodicityDays: 7,
         toleranceOrSpec: 'Pré-carga das molas da gaveta: 35 kN',
@@ -211,7 +211,7 @@ export const INITIAL_ASSETS: Asset[] = [
         id: 'h-rep-01',
         title: 'Substituição de tubeira submersa e anéis refratários',
         date: '25/Set/2026',
-        notes: 'Troca preventiva concluída antes do início da nova campanha de vazamento contínuo.',
+        notes: 'Substituição preventiva concluída antes do início da nova campanha de vazamento contínuo.',
         technicianName: 'Carlos Fernandes',
         technicianRole: 'Especialista Mecânico SMS Concast',
         technicianReg: 'TR-4891',
@@ -333,10 +333,10 @@ export const INITIAL_ASSETS: Asset[] = [
         periodicityLabel: 'Bienal (730 Dias)',
         periodicityDays: 730,
         toleranceOrSpec: 'Kit de lâminas DIN 17222 sob pré-tensão calibrada',
-        standardInstrumentOrPart: 'Almoxarifado Geral SMS Concast',
+        standardInstrumentOrPart: 'Armazém Geral SMS Concast',
         instructions: [
           'Limpeza profunda dos apoios com desengordurante biodegradável.',
-          'Montar e aplicar aperto cruzado com torquímetro calibrado a 420 Nm.'
+          'Montar e aplicar aperto cruzado com chave dinamométrica calibrada a 420 Nm.'
         ]
       }
     ],
@@ -370,7 +370,7 @@ export const INITIAL_ASSETS: Asset[] = [
     nextIntervention: {
       frequencyLabel: 'Trimestral (90 Dias)',
       frequencyDays: 90,
-      title: 'Medição de Isolamento Ôhmico das Bobinas e Caudal de Refrigeração',
+      title: 'Medição de Isolamento Óhmico das Bobinas e Caudal de Refrigeração',
       dueDate: '05/Dez/2026',
       daysRemaining: 68,
       assignedTech: 'Manuel Silveira'
@@ -387,7 +387,7 @@ export const INITIAL_ASSETS: Asset[] = [
         toleranceOrSpec: 'Resistência mínima admissível > 50 MΩ',
         standardInstrumentOrPart: 'Megóhmetro Fluke 1507',
         instructions: [
-          'Desligar e bloquear disjuntor de força no CCM do vazamento contínuo.',
+          'Desligar e bloquear disjuntor de corte no CCM do vazamento contínuo.',
           'Aplicar 1000V DC durante 60 segundos em cada uma das 3 fases.'
         ]
       }
@@ -437,9 +437,9 @@ export const INITIAL_ASSETS: Asset[] = [
         periodicityLabel: 'Semestral (180 Dias)',
         periodicityDays: 180,
         toleranceOrSpec: 'Precisão de leitura de menisco ± 1.0 mm sob vazamento',
-        standardInstrumentOrPart: 'Radiômetro Certificado Berthold LB 123',
+        standardInstrumentOrPart: 'Radiómetro Certificado Berthold LB 123',
         instructions: [
-          'Verificar fechamento automático do obturador por perda de ar ou corte de emergência.',
+          'Verificar fecho automático do obturador por perda de ar ou corte de emergência.',
           'Executar curva de contagens com haste calibrada de absorção.'
         ]
       }
@@ -451,7 +451,7 @@ export const INITIAL_ASSETS: Asset[] = [
         date: '20/Jun/2026',
         notes: 'Obturador de segurança e detector certificados sem anomalias de dosimetria.',
         technicianName: 'Engª Mariana Silva Sequeira',
-        technicianRole: 'Engenheira de Manutenção e Confiabilidade',
+        technicianRole: 'Engenheira de Manutenção e Fiabilidade',
         technicianReg: 'ENG-8841',
         verified: true
       }
@@ -507,7 +507,7 @@ export const INITIAL_ASSETS: Asset[] = [
         standardInstrumentOrPart: 'Gabarito de Raio SMS Concast R=8.0m',
         instructions: [
           'Fixar gabarito de alinhamento magnético na face inferior do molde.',
-          'Ajustar calços dos mancais dos rolos de pé com relógio apalpador.'
+          'Ajustar calços das chumaceiras dos rolos de pé com relógio apalpador.'
         ]
       }
     ],
@@ -551,14 +551,14 @@ export const INITIAL_ASSETS: Asset[] = [
         id: 'r-cur-01',
         code: 'LUB-03',
         type: 'Lubrificação',
-        title: 'Inspeção do Distribuidor Progressivo de Graxa dos Rolos',
-        description: 'Comprovação de fluxo nos blocos doseadores de graxa para os mancais internos refrigerados',
+        title: 'Inspeção do Distribuidor Progressivo de Massa dos Rolos',
+        description: 'Comprovação de fluxo nos blocos doseadores de massa para as chumaceiras internas refrigeradas',
         periodicityLabel: 'Mensal (30 Dias)',
         periodicityDays: 30,
         toleranceOrSpec: 'Pressão da linha principal 120 bar',
         standardInstrumentOrPart: 'Manómetro Lincolnlube',
         instructions: [
-          'Acionar ciclo manual de bombeamento de graxa sintética de poliureia.',
+          'Acionar ciclo manual de bombagem de massa sintética de poliureia.',
           'Confirmar que os pinos indicadores de cada elemento doseador operam livremente.'
         ]
       }
@@ -593,7 +593,7 @@ export const INITIAL_ASSETS: Asset[] = [
     nextIntervention: {
       frequencyLabel: 'Trimestral (90 Dias)',
       frequencyDays: 90,
-      title: 'Alinhamento a Laser dos Redutores e Troca de Chumaceiras dos Rolos',
+      title: 'Alinhamento a Laser dos Redutores e Substituição de Chumaceiras dos Rolos',
       dueDate: '29/Out/2026',
       daysRemaining: 31,
       assignedTech: 'Manuel Silveira'
@@ -604,7 +604,7 @@ export const INITIAL_ASSETS: Asset[] = [
         code: 'ALN-01',
         type: 'Alinhamento',
         title: 'Alinhamento a Laser dos Redutores Planetários e Veios',
-        description: 'Alinhamento ótico do eixo do motor elétrico ao redutor com acoplamento elástico',
+        description: 'Alinhamento ótico do veio do motor elétrico ao redutor com acoplamento elástico',
         periodicityLabel: 'Trimestral (90 Dias)',
         periodicityDays: 90,
         toleranceOrSpec: 'Desalinhamento paralelo < 0.04 mm, angular < 0.03 mm/100mm',
@@ -633,7 +633,7 @@ export const INITIAL_ASSETS: Asset[] = [
     history: [
       {
         id: 'h-ext-01',
-        title: 'Alinhamento a laser e troca de óleo do redutor',
+        title: 'Alinhamento a laser e mudança de óleo do redutor',
         date: '29/Jul/2026',
         notes: 'Óleo sintético ISO VG 320 substituído. Alinhamento laser dentro dos 0.02 mm.',
         technicianName: 'Manuel Silveira',
@@ -678,7 +678,7 @@ export const INITIAL_ASSETS: Asset[] = [
         standardInstrumentOrPart: 'Paquímetro Digital de 300mm Mitutoyo',
         instructions: [
           'Estender a falsa barra sobre os rolos guia de suporte.',
-          'Inspecionar ausência de trincas na cabeça de desengate rápido do tarugo.'
+          'Inspecionar ausência de fissuras na cabeça de desengate rápido do tarugo.'
         ]
       }
     ],
@@ -764,7 +764,7 @@ export const INITIAL_ASSETS: Asset[] = [
     nextIntervention: {
       frequencyLabel: 'Mensal (30 Dias)',
       frequencyDays: 30,
-      title: 'Alinhamento dos Rolos Motorizados e Lubrificação dos Mancais',
+      title: 'Alinhamento dos Rolos Motorizados e Lubrificação das Chumaceiras',
       dueDate: '18/Out/2026',
       daysRemaining: 20,
       assignedTech: 'Abílio Duarte'
@@ -775,14 +775,14 @@ export const INITIAL_ASSETS: Asset[] = [
         code: 'LUB-04',
         type: 'Lubrificação',
         title: 'Lubrificação e Limpeza de Cascarilha dos Rolos de Saída',
-        description: 'Reabastecimento de graxa nos mancais SKF SNL e purga de depósitos de óxidos de laminação',
+        description: 'Reabastecimento de massa nas chumaceiras SKF SNL e purga de depósitos de óxidos de laminação',
         periodicityLabel: 'Mensal (30 Dias)',
         periodicityDays: 30,
-        toleranceOrSpec: 'Graxa sintética NLGI 2 para alta temperatura',
+        toleranceOrSpec: 'Massa sintética NLGI 2 para alta temperatura',
         standardInstrumentOrPart: 'SKF LGHB 2',
         instructions: [
-          'Remover chapas de proteção e raspar acúmulo de cascarilha quente.',
-          'Bombear 30g de graxa por mancal até notar saída pelo labirinto de vedação.'
+          'Remover chapas de proteção e raspar acumulação de cascarilha quente.',
+          'Bombear 30g de massa por chumaceira até notar saída pelo labirinto de vedação.'
         ]
       }
     ],
@@ -791,9 +791,9 @@ export const INITIAL_ASSETS: Asset[] = [
         id: 'h-sai-01',
         title: 'Manutenção periódica da mesa de rolos',
         date: '18/Set/2026',
-        notes: 'Mancais lubrificados e correntes de transmissão verificadas com folga correta.',
+        notes: 'Chumaceiras lubrificadas e correntes de transmissão verificadas com folga correta.',
         technicianName: 'Abílio Duarte',
-        technicianRole: 'Eletromecânico de Vazamento Contínuo',
+        technicianRole: 'Eletromecânico do Vazamento Contínuo',
         technicianReg: 'TR-6140',
         verified: true
       }
@@ -845,7 +845,7 @@ export const INITIAL_ASSETS: Asset[] = [
         date: '23/Mai/2026',
         notes: 'Nivelamento corrigido com calços de latão nos suportes de articulação.',
         technicianName: 'Abílio Duarte',
-        technicianRole: 'Eletromecânico de Vazamento Contínuo',
+        technicianRole: 'Eletromecânico do Vazamento Contínuo',
         technicianReg: 'TR-6140',
         verified: true
       }
@@ -868,7 +868,7 @@ export const INITIAL_ASSETS: Asset[] = [
     nextIntervention: {
       frequencyLabel: 'Trimestral (90 Dias)',
       frequencyDays: 90,
-      title: 'Análise Espectrométrica de Fluido HFC, Troca de Filtros 3µm e Purga de Acumuladores',
+      title: 'Análise Espectrométrica de Fluido HFC, Substituição de Filtros 3µm e Purga de Acumuladores',
       dueDate: '10/Out/2026',
       daysRemaining: 12,
       assignedTech: 'Rui Miguel Baptista'
@@ -879,7 +879,7 @@ export const INITIAL_ASSETS: Asset[] = [
         code: 'FIL-01',
         type: 'Substituição',
         title: 'Substituição dos Elementos Filtrantes de Pressão e Retorno',
-        description: 'Troca de cartuchos absolutos de microfibra de vidro inorgânica beta >= 200',
+        description: 'Substituição de cartuchos absolutos de microfibra de vidro inorgânica beta >= 200',
         periodicityLabel: 'Trimestral (90 Dias)',
         periodicityDays: 90,
         toleranceOrSpec: 'Grau de filtração 3 µm absoluto / Classe ISO 4406: 16/14/11',
@@ -900,7 +900,7 @@ export const INITIAL_ASSETS: Asset[] = [
         toleranceOrSpec: 'Pressão nominal de pré-carga: 140 bar ± 5 bar',
         standardInstrumentOrPart: 'Kit de Carga e Teste Hydac FPU-1-250',
         instructions: [
-          'Despressurizar o lado hidráulico até zero bar comprovado no manômetro.',
+          'Despressurizar o lado hidráulico até zero bar comprovado no manómetro.',
           'Acoplar kit FPU e calibrar se necessário com garrafa de azoto a 200 bar.'
         ]
       }
@@ -945,8 +945,8 @@ export const INITIAL_ASSETS: Asset[] = [
         id: 'r-bom-01',
         code: 'VIB-01',
         type: 'Inspeção',
-        title: 'Análise de Espectro de Vibração e Temperatura dos Mancais',
-        description: 'Medição em 3 eixos (horizontal, vertical, axial) nos mancais da bomba e motor de 160 kW',
+        title: 'Análise de Espectro de Vibração e Temperatura das Chumaceiras',
+        description: 'Medição em 3 eixos (horizontal, vertical, axial) nas chumaceiras da bomba e motor de 160 kW',
         periodicityLabel: 'Mensal (30 Dias)',
         periodicityDays: 30,
         toleranceOrSpec: 'Velocidade RMS global < 2.3 mm/s (Zona A da ISO 10816-3)',
@@ -976,7 +976,7 @@ export const TECHNICIANS_LIST: Technician[] = [
   { id: 't1', name: 'Carlos Fernandes', role: 'Especialista Mecânico SMS Concast', reg: 'TR-4891' },
   { id: 't2', name: 'Rui Miguel Baptista', role: 'Técnico de Manutenção Hidráulica', reg: 'TR-3920' },
   { id: 't3', name: 'Manuel Silveira', role: 'Inspetor de Alinhamento e Vibrações', reg: 'TR-5012' },
-  { id: 't4', name: 'Engª Mariana Silva Sequeira', role: 'Engenheira de Manutenção e Confiabilidade', reg: 'ENG-8841' },
+  { id: 't4', name: 'Engª Mariana Silva Sequeira', role: 'Engenheira de Manutenção e Fiabilidade', reg: 'ENG-8841' },
   { id: 't5', name: 'João Pinto Alentejano', role: 'Técnico de Operações e Corte', reg: 'TR-2911' },
-  { id: 't6', name: 'Abílio Duarte', role: 'Eletromecânico de Vazamento Contínuo', reg: 'TR-6140' }
+  { id: 't6', name: 'Abílio Duarte', role: 'Eletromecânico do Vazamento Contínuo', reg: 'TR-6140' }
 ];

@@ -404,7 +404,7 @@ export const ConfigView: React.FC = () => {
 
               <div className="flex flex-col gap-1">
                 <label className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-                  Matrícula / Cód. Registro
+                  Matrícula / Cód. Registo
                 </label>
                 <input
                   type="text"

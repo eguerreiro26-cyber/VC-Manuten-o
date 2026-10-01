@@ -210,7 +210,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
           )}
 
           <form id="edit-asset-form" onSubmit={handleSave} className="flex flex-col gap-4">
-            {/* Seção 1: Identificação Principal */}
+            {/* Secção 1: Identificação Principal */}
             <div className="bg-[#131b2e] p-3.5 sm:p-4 rounded-xl border border-[#222a3d] flex flex-col gap-3">
               <span className="font-label-sm text-label-sm text-[#b4c5ff] uppercase font-semibold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">badge</span>
@@ -248,7 +248,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div className="flex flex-col gap-1">
                   <label className="font-label-sm text-label-sm text-[#c3c6d7] uppercase">
-                    Setor / Linha
+                    Sector / Linha
                   </label>
                   <input
                     type="text"
@@ -332,7 +332,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
               </div>
             </div>
 
-            {/* Seção 2: Imagem do Equipamento */}
+            {/* Secção 2: Imagem do Equipamento */}
             <div className="bg-[#131b2e] p-3.5 sm:p-4 rounded-xl border border-[#222a3d] flex flex-col gap-2.5">
               <span className="font-label-sm text-label-sm text-[#b4c5ff] uppercase font-semibold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">photo_camera</span>
@@ -374,7 +374,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
               </div>
             </div>
 
-            {/* Seção 3: Plano e Intervenções */}
+            {/* Secção 3: Plano e Intervenções */}
             <div className="bg-[#131b2e] p-3.5 sm:p-4 rounded-xl border border-[#222a3d] flex flex-col gap-3">
               <span className="font-label-sm text-label-sm text-[#4edea3] uppercase font-semibold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">event_repeat</span>

@@ -124,9 +124,9 @@ export function buildTechnicalReportPdf(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  const filterText = `Setor: ${filters?.sector || 'Todos'}  |  Criticidade: ${
+  const filterText = `Sector: ${filters?.sector || 'Todos'}  |  Criticidade: ${
     filters?.criticality || 'Todas'
-  }  |  Tipo de Plano: ${filters?.type || 'Todas'}  |  Status: ${
+  }  |  Tipo de Plano: ${filters?.type || 'Todas'}  |  Estado: ${
     filters?.status || 'Todos'
   }  |  Janela: ${filters?.timeframe || 'Geral'}`;
   doc.text(filterText, 52, 38);
@@ -205,7 +205,7 @@ export function buildTechnicalReportPdf(
       'DATA LIMITE',
       'PRAZO',
       'VIDA ÚTIL',
-      'STATUS'
+      'ESTADO'
     ]],
     body: tableData,
     theme: 'grid',
@@ -460,7 +460,7 @@ export function generateAssetDossierPdf(asset: Asset): void {
     startY: currentY + 3,
     margin: { left: 14, right: 14 },
     head: [['CÓDIGO', 'TIPO', 'DESCRIÇÃO DA TAREFA / ROTINA', 'PERIODICIDADE', 'INSTRUMENTO / NORMA']],
-    body: routinesData.length > 0 ? routinesData : [['-', '-', 'Nenhuma rotina cadastrada', '-', '-']],
+    body: routinesData.length > 0 ? routinesData : [['-', '-', 'Nenhuma rotina registada', '-', '-']],
     theme: 'grid',
     styles: {
       font: 'helvetica',

@@ -50,7 +50,7 @@ export const ExecuteMaintenanceModal: React.FC = () => {
                   {executeModalAsset.tag}
                 </span>
                 <span className="font-label-sm text-label-sm text-[#4edea3] uppercase font-semibold">
-                  Execução O.S.
+                  Execução O.T.
                 </span>
               </div>
               <h2 className="font-headline-sm text-headline-sm text-[#dae2fd] truncate max-w-[220px]">
@@ -175,7 +175,7 @@ export const ExecuteMaintenanceModal: React.FC = () => {
               className="h-11 rounded-xl bg-[#2563eb] text-[#eeefff] font-label-md text-label-md font-bold active:scale-[0.98] hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#2563eb]/25"
             >
               <span className="material-symbols-outlined text-[18px]">task_alt</span>
-              <span>Guardar & Baixar OS</span>
+              <span>Guardar & Concluir O.T.</span>
             </button>
           </div>
         </form>

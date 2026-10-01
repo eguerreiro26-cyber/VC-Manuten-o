@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, showBack }) => {
           <button
             onClick={triggerManualSync}
             title={isOfflineMode ? 'Modo Offline Ativo' : 'Base de dados em nuvem ativa (sincronização em tempo real)'}
-            aria-label="Status de Conexão em Nuvem"
+            aria-label="Estado da Ligação em Nuvem"
             className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#222a3d] text-[#4edea3] active:bg-[#2d3449] hover:bg-[#2d3449]/80 transition-colors"
             type="button"
           >

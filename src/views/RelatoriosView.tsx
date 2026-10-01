@@ -72,7 +72,7 @@ export const RelatoriosView: React.FC = () => {
     const headers = [
       'Tag',
       'Equipamento',
-      'Setor',
+      'Sector',
       'Área',
       'Criticidade',
       'Próxima Intervenção',
@@ -80,7 +80,7 @@ export const RelatoriosView: React.FC = () => {
       'Data Limite',
       'Dias Restantes até Intervenção',
       'Vida Útil até Intervenção (%)',
-      'Status Operacional'
+      'Estado Operacional'
     ];
 
     const rows = filteredAssets.map(a => {
@@ -795,7 +795,7 @@ export const RelatoriosView: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 pt-1 bg-[#222a3d]/50 p-2.5 rounded-lg border border-[#2d3449]">
                   <div>
                     <span className="font-label-sm text-label-sm text-[#c3c6d7] block uppercase">
-                      Ação / Setor
+                      Ação / Sector
                     </span>
                     <span className="font-body-sm text-body-sm text-[#dae2fd] font-medium truncate block">
                       {asset.nextIntervention.title}
@@ -859,7 +859,7 @@ export const RelatoriosView: React.FC = () => {
             Métricas da Seleção
           </span>
           <span className="font-label-sm text-label-sm text-[#c3c6d7] font-mono">
-            Status: Consolidado
+            Estado: Consolidado
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
