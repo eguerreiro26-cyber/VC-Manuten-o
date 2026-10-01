@@ -394,8 +394,8 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
             <div className="bg-white text-black p-4 rounded-lg my-4 font-mono text-xs shadow-inner space-y-2">
               <div className="border-b border-black pb-2 flex justify-between">
                 <div>
-                  <div className="font-bold text-sm">INDUSMAINT CMMS - RELATÓRIO DO ATIVO</div>
-                  <div className="text-[10px] text-gray-600">AUDITORIA ISO-55001 / NR-12</div>
+                  <div className="font-bold text-sm">INDUSMAINT - RELATÓRIO DO ATIVO</div>
+                  <div className="text-[10px] text-gray-600">FICHA TÉCNICA DE MANUTENÇÃO</div>
                 </div>
                 <div className="text-right">
                   <div className="font-bold">{asset.tag}</div>

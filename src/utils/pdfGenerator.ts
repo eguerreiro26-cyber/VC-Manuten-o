@@ -77,7 +77,7 @@ export function buildTechnicalReportPdf(
   ).length;
 
   const totalRoutines = assets.reduce(
-    (acc, a) => acc + (a.routines ? a.routines.length : 1),
+    (acc, a) => acc + (Array.isArray(a.routines) ? a.routines.length : 0),
     0
   );
 
@@ -93,25 +93,22 @@ export function buildTechnicalReportPdf(
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(15);
   doc.setTextColor(255, 255, 255);
-  doc.text('INDUSMAINT CMMS • RELATÓRIO TÉCNICO DE GESTÃO DE ATIVOS', 14, 11);
+  doc.text('INDUSMAINT • RELATÓRIO TÉCNICO DE GESTÃO DE ATIVOS', 14, 11);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(195, 205, 235);
   doc.text(
-    'SISTEMA INTEGRADO DE MANUTENÇÃO INDUSTRIAL • AUDITORIA ISO 55001 / EN 13306 / NR-12',
+    'MANUTENÇÃO INDUSTRIAL • VAZAMENTO CONTÍNUO',
     14,
     18
   );
 
-  // Date & Badge on the right
+  // Date on the right
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(255, 255, 255);
-  doc.text(`EMISSÃO: ${dateStr} ${timeStr}`, pageWidth - 14, 11, { align: 'right' });
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(147, 197, 253);
-  doc.text(`REGISTO OFICIAL DE AUDITORIA`, pageWidth - 14, 18, { align: 'right' });
+  doc.text(`EMISSÃO: ${dateStr} ${timeStr}`, pageWidth - 14, 15, { align: 'right' });
 
   // 2. Filter & Parameter Summary Row
   doc.setFillColor(241, 245, 249); // slate-100
@@ -134,7 +131,7 @@ export function buildTechnicalReportPdf(
   }  |  Janela: ${filters?.timeframe || 'Geral'}`;
   doc.text(filterText, 52, 38);
 
-  const kpiSummary = `Ativos Selecionados: ${totalAssets}   |   Rotinas Monitorizadas: ${totalRoutines}   |   Emitido por: Operação CMMS`;
+  const kpiSummary = `Ativos Selecionados: ${totalAssets}   |   Rotinas Monitorizadas: ${totalRoutines}   |   Emitido por: Emanuel Guerreiro 10494.4`;
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(30, 64, 175);
   doc.text(kpiSummary, 18, 43);
@@ -295,7 +292,7 @@ export function buildTechnicalReportPdf(
       doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
 
       doc.text(
-        'INDUSMAINT CMMS • Relatório Técnico de Manutenção Preventiva e Preditiva • Em conformidade com ISO 55001',
+        'INDUSMAINT • Relatório Técnico de Manutenção Preventiva e Preditiva',
         14,
         pageHeight - 7
       );
@@ -363,13 +360,13 @@ export function generateAssetDossierPdf(asset: Asset): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   doc.setTextColor(255, 255, 255);
-  doc.text('INDUSMAINT CMMS • DOSSIÊ TÉCNICO DE EQUIPAMENTO', 14, 11);
+  doc.text('INDUSMAINT • DOSSIÊ TÉCNICO DE EQUIPAMENTO', 14, 11);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(195, 205, 235);
   doc.text(
-    'FICHA TÉCNICA INDIVIDUAL • HOMOLOGAÇÃO DE MANUTENÇÃO ISO 55001 / NR-12',
+    'FICHA TÉCNICA INDIVIDUAL • VAZAMENTO CONTÍNUO',
     14,
     18
   );
@@ -505,14 +502,14 @@ export function generateAssetDossierPdf(asset: Asset): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(15, 23, 42);
-  doc.text('HISTÓRICO RECENTE DE INTERVENÇÕES E AUDITORIA', 14, currentY);
+  doc.text('HISTÓRICO RECENTE DE INTERVENÇÕES', 14, currentY);
 
   const historyData = (asset.history || []).map(h => [
     h.date,
     h.title,
     `${h.technicianName} (${h.technicianReg || 'Reg.'})`,
     h.notes || 'Intervenção executada conforme normas operacionais.',
-    h.verified ? 'AUDITADO' : 'REGISTADO'
+    h.verified ? 'CONFORME' : 'REGISTADO'
   ]);
 
   autoTable(doc, {
@@ -547,7 +544,7 @@ export function generateAssetDossierPdf(asset: Asset): void {
     },
     didParseCell: (data) => {
       if (data.section === 'body' && data.column.index === 4) {
-        if (data.cell.raw === 'AUDITADO') {
+        if (data.cell.raw === 'CONFORME' || data.cell.raw === 'AUDITADO') {
           data.cell.styles.textColor = [22, 101, 52];
           data.cell.styles.fillColor = [240, 253, 244];
         } else {
@@ -579,18 +576,18 @@ export function generateAssetDossierPdf(asset: Asset): void {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Rubrica Digital • Reg. CMMS-${asset.tag}`, 53, signY + 22, { align: 'center' });
+  doc.text(`Rubrica Digital • Reg. ${asset.tag}`, 53, signY + 22, { align: 'center' });
 
   // Right signature
   doc.line(pageWidth - 88, signY + 14, pageWidth - 18, signY + 14);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text('COORDENAÇÃO DE ENGENHARIA E AUDITORIA', pageWidth - 53, signY + 18, { align: 'center' });
+  doc.text('COORDENAÇÃO DE ENGENHARIA', pageWidth - 53, signY + 18, { align: 'center' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(100, 116, 139);
-  doc.text('Conformidade ISO 55001 / EN 13306', pageWidth - 53, signY + 22, { align: 'center' });
+  doc.text('Aprovação Técnica Operacional', pageWidth - 53, signY + 22, { align: 'center' });
 
   // Page numbering and footer
   const totalPages = doc.getNumberOfPages();
@@ -602,7 +599,7 @@ export function generateAssetDossierPdf(asset: Asset): void {
     doc.setDrawColor(203, 213, 225);
     doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
     doc.text(
-      `INDUSMAINT CMMS • Dossiê Técnico [${asset.tag}] • Autenticação: SHA256-${asset.id.slice(0, 8)}`,
+      `INDUSMAINT • Dossiê Técnico [${asset.tag}] • Autenticação: SHA256-${asset.id.slice(0, 8)}`,
       14,
       pageHeight - 7
     );

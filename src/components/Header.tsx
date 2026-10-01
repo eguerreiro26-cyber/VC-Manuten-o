@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, showBack }) => {
     if (selectedAssetId) return 'Detalhe Do Equipamento';
     switch (activeTab) {
       case 'equipamentos':
-        return 'Vazamento Continuo';
+        return 'Vazamento Contínuo';
       case 'novo-registo':
         return 'Novo Registo';
       case 'planos-manutencao':
@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, showBack }) => {
       case 'configuracoes':
         return 'Configurações';
       default:
-        return 'IndusMaint CMMS';
+        return 'IndusMaint';
     }
   };
 

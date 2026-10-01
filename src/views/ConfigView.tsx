@@ -91,7 +91,7 @@ export const ConfigView: React.FC = () => {
           </div>
           <div>
             <h2 className="font-headline-sm text-headline-sm text-[#dae2fd]">
-              Configurações do Sistema CMMS
+              Configurações do Sistema
             </h2>
             <p className="font-label-sm text-label-sm text-[#c3c6d7]">
               Unidade Industrial, Técnicos e Sincronização Local
@@ -517,10 +517,10 @@ export const ConfigView: React.FC = () => {
       {/* 5. Normas & Certificação */}
       <div className="p-3 bg-[#060e20] border border-[#171f33] rounded-xl text-center text-xs text-[#8d90a0]">
         <p className="font-mono font-semibold text-[#b4c5ff]">
-          IndusMaint Gear CMMS • Versão 4.8-PROD
+          IndusMaint • Versão 4.8-PROD
         </p>
         <p className="mt-0.5">
-          Conformidade com ISO-14224 (Reliability and maintenance data) e ISO-55001 (Gestão de Ativos Físicos).
+          Sistema Industrial de Gestão e Manutenção de Ativos Fabris.
         </p>
       </div>
     </div>

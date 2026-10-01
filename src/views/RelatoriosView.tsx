@@ -54,7 +54,10 @@ export const RelatoriosView: React.FC = () => {
   // Statistics
   const totalFiltered = filteredAssets.length;
   const critAFiltered = filteredAssets.filter(a => a.criticality === 'A').length;
-  const scheduledCount = filteredAssets.reduce((acc, a) => acc + (a.routines.length || 1), 0);
+  const scheduledCount = filteredAssets.reduce(
+    (acc, a) => acc + (Array.isArray(a.routines) ? a.routines.length : 0),
+    0
+  );
 
   // Clear filters
   const handleResetFilters = () => {
@@ -159,7 +162,7 @@ export const RelatoriosView: React.FC = () => {
           });
 
           const shareData = {
-            title: 'Relatório Técnico IndusMaint CMMS',
+            title: 'Relatório Técnico IndusMaint',
             text: `Relatório Técnico de Manutenção: ${totalFiltered} ativos monitorizados (${critAFiltered} Crítica A, ${scheduledCount} rotinas). Em anexo relatório PDF oficial.`
           };
 
@@ -227,7 +230,7 @@ export const RelatoriosView: React.FC = () => {
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col">
               <span className="font-label-sm text-label-sm text-[#b4c5ff] uppercase tracking-widest">
-                Motor de Dados & Auditoria
+                Motor de Dados & Relatórios
               </span>
               <h1 className="font-headline-sm text-headline-sm text-[#dae2fd] font-semibold tracking-tight">
                 Exportação & Relatórios

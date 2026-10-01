@@ -211,7 +211,7 @@ export const NovoRegistoView: React.FC = () => {
             <div>
               <h2 className="font-headline-sm text-headline-sm text-[#dae2fd]">Cadastro de Ativo</h2>
               <p className="font-label-sm text-label-sm text-[#c3c6d7] uppercase tracking-wider">
-                Vazamento Continuo • SN Seixal - SMS Concast
+                Vazamento Contínuo • SN Seixal - SMS Concast
               </p>
             </div>
           </div>
@@ -316,7 +316,7 @@ export const NovoRegistoView: React.FC = () => {
                 />
               </div>
 
-              {/* Setor Específico (Vazamento Continuo) */}
+              {/* Setor Específico (Vazamento Contínuo) */}
               <div className="flex flex-col gap-1">
                 <label className="font-label-md text-label-md text-[#dae2fd] uppercase tracking-wide">
                   Setor / Seção do Vazamento Contínuo
