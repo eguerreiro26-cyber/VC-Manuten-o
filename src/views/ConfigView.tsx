@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Technician } from '../types';
+import { MmaLogo } from '../components/MmaLogo';
 
 export const ConfigView: React.FC = () => {
   const {
@@ -515,13 +516,16 @@ export const ConfigView: React.FC = () => {
       )}
 
       {/* 5. Normas & Certificação */}
-      <div className="p-3 bg-[#060e20] border border-[#171f33] rounded-xl text-center text-xs text-[#8d90a0]">
-        <p className="font-mono font-semibold text-[#b4c5ff]">
-          IndusMaint • Versão 4.8-PROD
-        </p>
-        <p className="mt-0.5">
-          Sistema Industrial de Gestão e Manutenção de Ativos Fabris.
-        </p>
+      <div className="p-4 bg-[#060e20] border border-[#171f33] rounded-xl flex flex-col items-center justify-center text-center text-xs text-[#8d90a0] gap-2">
+        <MmaLogo className="h-14 w-14" size={56} />
+        <div>
+          <p className="font-mono font-semibold text-[#b4c5ff]">
+            MMA IndusMaint • Versão 4.8-PROD
+          </p>
+          <p className="mt-0.5 text-[#8d90a0]">
+            Sistema Industrial de Gestão e Manutenção de Ativos Fabris.
+          </p>
+        </div>
       </div>
     </div>
   );

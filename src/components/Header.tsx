@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { MmaLogo } from './MmaLogo';
 
 interface HeaderProps {
   title?: string;
@@ -54,14 +55,8 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, showBack }) => {
             </button>
           ) : null}
 
-          {/* Logo icon */}
-          <div className="relative shrink-0 flex items-center">
-            <img
-              alt="IndusMaint Logo"
-              className="h-8 w-auto object-contain shrink-0"
-              src="https://lh3.googleusercontent.com/aida/AEtjO1WGcz-o4aGNHXUpaxffLwBAXQAN5HnnOCDvwHjTcwy8xpQSV0U6ZEb-KaRKeNPDWWcOzSCuSYwUpXsrLyO5AAyR5woxTsP5LbZoDep9XgPpUhunyh7VfzPJUReCTHfv6AckYBnCoxDXyC53KUPlAY4_77WNXyPh_sKtSaZ1t1sj94Bp_ax6SLvab-tFreWa0wHstBXSFDdqCDV27fLTuU6fpQCUOdtgC147OpXo5EYwMBcntL7CO9h0JAk"
-            />
-          </div>
+          {/* MMA Emblem Logo */}
+          <MmaLogo className="h-9 w-9" size={36} />
 
           <div className="flex flex-col min-w-0 pl-1">
             <div className="flex items-center gap-1">
