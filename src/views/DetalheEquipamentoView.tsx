@@ -1,20 +1,39 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Asset } from '../types';
+import { Asset, MaintenanceRecord } from '../types';
 import { generateAssetDossierPdf } from '../utils/pdfGenerator';
 import { EditAssetModal } from '../components/EditAssetModal';
+import { toInputDateFormat, formatDateToPt } from '../utils/dateUtils';
 
 interface DetalheProps {
   assetId: string;
 }
 
 export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
-  const { assets, setSelectedAssetId, openExecuteModal, openQrModal, showToast } = useApp();
+  const {
+    assets,
+    setSelectedAssetId,
+    openExecuteModal,
+    openQrModal,
+    showToast,
+    updateHistoryRecord,
+    deleteHistoryRecord,
+    addHistoryRecord
+  } = useApp();
 
   const asset = assets.find(a => a.id === assetId) || assets[0];
 
   const [showDossierModal, setShowDossierModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Estados para edição/adição de registos de histórico
+  const [editingRecord, setEditingRecord] = useState<MaintenanceRecord | null>(null);
+  const [isAddingHistory, setIsAddingHistory] = useState(false);
+  const [histDate, setHistDate] = useState('');
+  const [histTitle, setHistTitle] = useState('');
+  const [histTech, setHistTech] = useState('');
+  const [histReg, setHistReg] = useState('');
+  const [histNotes, setHistNotes] = useState('');
 
   if (!asset) {
     return (
@@ -266,16 +285,31 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
 
       {/* Histórico Recente de Intervenções (Timeline) */}
       <div className="flex flex-col gap-2 pt-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-4 rounded-full bg-[#ffb95f]"></span>
             <h3 className="font-headline-sm text-headline-sm text-[#dae2fd]">
-              Histórico Recente de Intervenções
+              Histórico de Intervenções
             </h3>
+            <span className="font-label-sm text-label-sm text-[#8d90a0]">
+              ({asset.history?.length || 0})
+            </span>
           </div>
-          <span className="font-label-sm text-label-sm text-[#8d90a0]">
-            {asset.history?.length || 0} Registos
-          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setHistDate(new Date().toISOString().split('T')[0]);
+              setHistTitle(asset.nextIntervention.title || 'Manutenção Preventiva');
+              setHistTech('Equipa de Manutenção');
+              setHistReg('TR-MANUAL');
+              setHistNotes('');
+              setIsAddingHistory(true);
+            }}
+            className="px-2.5 py-1.5 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-[#b4c5ff] text-xs font-semibold flex items-center gap-1 border border-[#2d3449] transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[15px]">add_circle</span>
+            <span>Adicionar Intervenção Anterior</span>
+          </button>
         </div>
 
         {/* Timeline Container */}
@@ -297,13 +331,30 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                 </div>
 
                 <div className="grow flex flex-col pb-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
                     <span className="font-label-md text-label-md font-semibold text-[#dae2fd]">
                       {record.title}
                     </span>
-                    <span className="font-label-sm text-label-sm text-[#8d90a0]">
-                      {record.date}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-[#060e20] text-[#4edea3] font-bold border border-[#222a3d]">
+                        {record.date}
+                      </span>
+                      <button
+                        type="button"
+                        title="Corrigir ou editar este registo histórico"
+                        onClick={() => {
+                          setEditingRecord(record);
+                          setHistDate(toInputDateFormat(record.date));
+                          setHistTitle(record.title);
+                          setHistTech(record.technicianName);
+                          setHistReg(record.technicianReg || '');
+                          setHistNotes(record.notes || '');
+                        }}
+                        className="w-7 h-7 rounded hover:bg-[#222a3d] text-[#8d90a0] hover:text-[#b4c5ff] flex items-center justify-center transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">edit</span>
+                      </button>
+                    </div>
                   </div>
                   <p className="font-body-sm text-body-sm text-[#c3c6d7] mt-1">
                     "{record.notes}"
@@ -312,10 +363,10 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                     <img
                       alt={record.technicianName}
                       className="w-5 h-5 rounded-full object-cover border border-[#2d3449]"
-                      src={record.technicianAvatar}
+                      src={record.technicianAvatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuD3gWrF5lATcnxnGAISqfZXHA14TRg_znYeMhsMaFTZuCvvaN2TFrLqTegiSHE2KpBuswVAPA5A-XzREb2109zJk5I47SiWJ8C3yJd_9Aj9FNukmZaflCFFw-IiexzmrpT4LMj-7XAjcS7hPPjVlwWrnQVlakJ5-pH0Ba0ohH1rf7FpO19tfdxU5kyeFOn4YOvLnQ5UueRxhRFGOgbYuokC1Z60r_8YZQxU0kFqJrWtPQgKOnOb85AJ'}
                     />
                     <span className="font-label-sm text-label-sm text-[#b4c5ff]">
-                      {record.technicianName} ({record.technicianReg})
+                      {record.technicianName} {record.technicianReg ? `(${record.technicianReg})` : ''}
                     </span>
                     <span className="font-label-sm text-label-sm text-[#4edea3] ml-auto flex items-center gap-0.5">
                       <span className="material-symbols-outlined text-[13px]">verified</span>
@@ -475,6 +526,176 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
                 Fechar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição ou Adição de Registo Histórico */}
+      {(editingRecord || isAddingHistory) && (
+        <div className="fixed inset-0 z-[100] bg-[#060e20]/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#171f33] border border-[#2d3449] rounded-2xl w-full max-w-md p-5 flex flex-col shadow-2xl animate-in zoom-in-95 duration-150 my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#2d3449]">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-lg bg-[#ffb95f]/20 text-[#ffb95f] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[20px]">
+                    {isAddingHistory ? 'add_circle' : 'edit_calendar'}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-headline-sm text-headline-sm text-[#dae2fd]">
+                    {isAddingHistory ? 'Adicionar Registo ao Histórico' : 'Corrigir Data & Intervenção'}
+                  </h3>
+                  <span className="text-xs text-[#8d90a0]">
+                    {asset.tag} • {asset.name}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingRecord(null);
+                  setIsAddingHistory(false);
+                }}
+                className="w-8 h-8 rounded-lg hover:bg-[#222a3d] text-[#c3c6d7] flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                const formatted = formatDateToPt(histDate);
+                if (isAddingHistory) {
+                  addHistoryRecord(asset.id, {
+                    title: histTitle.trim() || 'Manutenção Preventiva',
+                    date: formatted,
+                    notes: histNotes.trim() || 'Intervenção executada.',
+                    technicianName: histTech.trim() || 'Técnico Responsável',
+                    technicianRole: 'Técnico Responsável',
+                    technicianReg: histReg.trim() || 'Rubrica Manual',
+                    verified: true
+                  });
+                } else if (editingRecord) {
+                  updateHistoryRecord(asset.id, editingRecord.id, {
+                    title: histTitle.trim(),
+                    date: formatted,
+                    notes: histNotes.trim(),
+                    technicianName: histTech.trim(),
+                    technicianReg: histReg.trim()
+                  });
+                }
+                setEditingRecord(null);
+                setIsAddingHistory(false);
+              }}
+              className="flex flex-col gap-3.5 mt-4"
+            >
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold uppercase text-[#c3c6d7] flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px] text-[#4edea3]">calendar_today</span>
+                  Data da Intervenção <span className="text-[#ffb4ab]">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={histDate}
+                  onChange={e => setHistDate(e.target.value)}
+                  required
+                  className="min-h-[44px] px-3 bg-[#060e20] text-[#4edea3] font-mono font-bold text-sm rounded-lg border border-[#2d3449] focus:outline-none focus:border-[#2563eb]"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold uppercase text-[#c3c6d7]">
+                  Título / Tipo de Tarefa <span className="text-[#ffb4ab]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={histTitle}
+                  onChange={e => setHistTitle(e.target.value)}
+                  placeholder="ex: Substituição de Componentes"
+                  required
+                  className="min-h-[44px] px-3 bg-[#060e20] text-[#dae2fd] rounded-lg text-sm border border-[#2d3449] focus:outline-none focus:border-[#2563eb]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold uppercase text-[#c3c6d7]">
+                    Técnico Responsável <span className="text-[#ffb4ab]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={histTech}
+                    onChange={e => setHistTech(e.target.value)}
+                    placeholder="Nome do técnico"
+                    required
+                    className="min-h-[44px] px-3 bg-[#060e20] text-[#dae2fd] rounded-lg text-sm border border-[#2d3449] focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold uppercase text-[#c3c6d7]">
+                    Matrícula / Rubrica
+                  </label>
+                  <input
+                    type="text"
+                    value={histReg}
+                    onChange={e => setHistReg(e.target.value)}
+                    placeholder="ex: TR-4891"
+                    className="min-h-[44px] px-3 bg-[#060e20] text-[#dae2fd] rounded-lg text-sm border border-[#2d3449] focus:outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold uppercase text-[#c3c6d7]">
+                  Observações & Ações Realizadas
+                </label>
+                <textarea
+                  rows={3}
+                  value={histNotes}
+                  onChange={e => setHistNotes(e.target.value)}
+                  placeholder="Descreva as verificações ou peças substituídas..."
+                  className="p-2.5 bg-[#060e20] text-[#dae2fd] rounded-lg text-sm border border-[#2d3449] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#2d3449]">
+                {editingRecord ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Tem a certeza que deseja eliminar este registo histórico?')) {
+                        deleteHistoryRecord(asset.id, editingRecord.id);
+                        setEditingRecord(null);
+                      }
+                    }}
+                    className="h-10 px-3 rounded-lg bg-[#93000a]/20 hover:bg-[#93000a]/40 text-[#ffb4ab] text-xs font-semibold flex items-center gap-1 border border-[#ffb4ab]/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                    <span>Eliminar</span>
+                  </button>
+                ) : <div />}
+
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingRecord(null);
+                      setIsAddingHistory(false);
+                    }}
+                    className="h-10 px-4 rounded-lg bg-[#222a3d] text-[#c3c6d7] text-xs font-semibold hover:bg-[#2d3449]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="h-10 px-4 rounded-lg bg-[#2563eb] text-[#eeefff] text-xs font-bold hover:bg-[#1d4ed8] shadow"
+                  >
+                    Guardar Alterações
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

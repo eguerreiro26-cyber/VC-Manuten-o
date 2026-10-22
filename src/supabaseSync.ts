@@ -18,6 +18,7 @@ export interface SupabaseEquipamento {
   periodicidade_dias: number;
   ultima_intervencao: string | null; // AAAA-MM-DD ou null
   notas?: string;
+  setor?: string;
   [key: string]: any;
 }
 
@@ -30,8 +31,11 @@ export function mapAssetToSupabaseEquipamento(asset: Asset): SupabaseEquipamento
   if (asset.criticality === 'B') criticidadeStr = 'Média';
   else if (asset.criticality === 'C') criticidadeStr = 'Baixa';
 
-  // Área / Sector
-  const area = asset.plantArea || asset.sector || 'Vazamento Contínuo';
+  // Setor: Usa estritamente o valor que o utilizador preenche no campo "Setor" do formulário de equipamento
+  const setor = asset.sector || '';
+
+  // Área: Campo de Área / Fábrica
+  const area = asset.plantArea || 'SN Seixal';
 
   // Tipo de intervenção
   const tipo_intervencao =
@@ -61,6 +65,7 @@ export function mapAssetToSupabaseEquipamento(asset: Asset): SupabaseEquipamento
     nome: asset.name,
     tag: asset.tag || undefined,
     area,
+    setor,
     criticidade: criticidadeStr,
     tipo_intervencao,
     periodicidade_dias,

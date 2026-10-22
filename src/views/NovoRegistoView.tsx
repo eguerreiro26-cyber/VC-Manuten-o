@@ -161,7 +161,7 @@ export const NovoRegistoView: React.FC = () => {
       id: 'vc-' + Date.now(),
       tag: tag.toUpperCase(),
       name,
-      sector: sector ? `Vazamento Contínuo • ${sector}` : 'Vazamento Contínuo • SMS Concast',
+      sector: sector.trim() || 'Vazamento Contínuo • SMS Concast',
       plantArea: 'SMS Concast',
       criticality,
       status: isOverdue ? 'Pendente' : 'Operacional',

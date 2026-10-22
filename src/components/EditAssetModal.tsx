@@ -110,6 +110,29 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
 
     const formattedLastDate = formatDateToPt(lastIntervDate);
 
+    // Manter o histórico de intervenções 100% sincronizado com a data da última intervenção
+    let updatedHistory = asset.history ? [...asset.history] : [];
+    if (updatedHistory.length === 0 && formattedLastDate) {
+      updatedHistory = [
+        {
+          id: 'h-' + Date.now(),
+          title: intervTitle.trim() || 'Manutenção Preventiva Periódica',
+          date: formattedLastDate,
+          notes: 'Registo de última intervenção homologado na ficha técnica do ativo.',
+          technicianName: intervTech.trim() || 'Equipa de Manutenção SMS Concast',
+          technicianRole: 'Técnico Responsável',
+          technicianReg: 'RUB-CONCAST',
+          verified: true
+        }
+      ];
+    } else if (updatedHistory.length >= 1 && formattedLastDate) {
+      // Atualizar o registo mais recente com a nova data selecionada
+      updatedHistory[0] = {
+        ...updatedHistory[0],
+        date: formattedLastDate
+      };
+    }
+
     updateAsset(asset.id, {
       tag: tag.trim(),
       name: name.trim(),
@@ -130,7 +153,8 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset, isOpen, o
         dueDate: intervDueDate,
         daysRemaining: Number(intervDaysRemaining),
         assignedTech: intervTech.trim() || 'Equipa de Turno'
-      }
+      },
+      history: updatedHistory
     });
 
     showToast(`Equipamento ${tag} atualizado com sucesso! Data de última intervenção: ${formattedLastDate}`);

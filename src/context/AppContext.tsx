@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { Asset, TabType, Technician } from '../types';
+import { Asset, TabType, Technician, MaintenanceRecord } from '../types';
 import { INITIAL_ASSETS, TECHNICIANS_LIST } from '../data/mockData';
+import { formatDateToPt, calculateNextCycle } from '../utils/dateUtils';
 import {
   collection,
   doc,
@@ -57,6 +58,13 @@ interface AppContextType {
   addTechnician: (tech: Omit<Technician, 'id'>) => void;
   updateTechnician: (id: string, tech: Partial<Technician>) => void;
   deleteTechnician: (id: string) => void;
+  updateHistoryRecord: (
+    assetId: string,
+    recordId: string,
+    updatedRecord: Partial<MaintenanceRecord>
+  ) => void;
+  deleteHistoryRecord: (assetId: string, recordId: string) => void;
+  addHistoryRecord: (assetId: string, newRecord: Omit<MaintenanceRecord, 'id'>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -394,37 +402,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     notes: string,
     executionDate?: string
   ) => {
-    let dateObj = new Date();
-    if (executionDate) {
-      const parsed = new Date(executionDate);
-      if (!isNaN(parsed.getTime())) {
-        dateObj = parsed;
-      }
-    }
-    const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
-
     const currentAsset = assets.find(a => a.id === assetId);
     if (!currentAsset) return;
 
-    const freqDays = currentAsset.nextIntervention.frequencyDays || 30;
-    const nextDate = new Date(dateObj);
-    nextDate.setDate(nextDate.getDate() + freqDays);
-    const formattedNextDate = `${nextDate.getDate().toString().padStart(2, '0')}/${(nextDate.getMonth() + 1).toString().padStart(2, '0')}/${nextDate.getFullYear()}`;
+    // Use clean Portuguese DD/MM/YYYY date without timezone drift
+    const formattedDate = executionDate
+      ? formatDateToPt(executionDate)
+      : formatDateToPt(new Date().toISOString().split('T')[0]);
 
-    const updatedHistory = [
-      {
-        id: 'h-' + Date.now(),
-        title: interventionTitle,
-        date: formattedDate,
-        notes: notes || 'Intervenção preventiva executada e calibrada de acordo com procedimento padrão do Vazamento Contínuo.',
-        technicianName,
-        technicianRole: 'Técnico Responsável',
-        technicianReg: technicianReg || 'Rubrica Manual',
-        technicianAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD3gWrF5lATcnxnGAISqfZXHA14TRg_znYeMhsMaFTZuCvvaN2TFrLqTegiSHE2KpBuswVAPA5A-XzREb2109zJk5I47SiWJ8C3yJd_9Aj9FNukmZaflCFFw-IiexzmrpT4LMj-7XAjcS7hPPjVlwWrnQVlakJ5-pH0Ba0ohH1rf7FpO19tfdxU5kyeFOn4YOvLnQ5UueRxhRFGOgbYuokC1Z60r_8YZQxU0kFqJrWtPQgKOnOb85AJ',
-        verified: true
-      },
-      ...(currentAsset.history || [])
-    ];
+    const freqDays = currentAsset.nextIntervention.frequencyDays || 30;
+    const cycle = calculateNextCycle(executionDate || new Date().toISOString().split('T')[0], freqDays);
+    const formattedNextDate = cycle.dueDate;
+    const remainingDays = cycle.daysRemaining;
+
+    // Preserve previous history accurately:
+    // If the asset has a previous lastInterventionDate that was not in history or if history was empty,
+    // ensure the previous intervention is preserved before prepending the new record.
+    let existingHistory = currentAsset.history ? [...currentAsset.history] : [];
+    if (existingHistory.length === 0 && currentAsset.lastInterventionDate) {
+      existingHistory = [
+        {
+          id: 'h-' + Date.now() + '-prev',
+          title: currentAsset.routines?.[0]?.title || currentAsset.nextIntervention?.title || 'Intervenção Anterior',
+          date: currentAsset.lastInterventionDate,
+          notes: 'Registo de intervenção homologado no histórico do equipamento.',
+          technicianName: currentAsset.nextIntervention?.assignedTech || 'Equipa de Manutenção',
+          technicianRole: 'Técnico Responsável',
+          technicianReg: 'RUB-HISTORICO',
+          verified: true
+        }
+      ];
+    } else if (
+      existingHistory.length === 1 &&
+      currentAsset.lastInterventionDate &&
+      existingHistory[0].date !== currentAsset.lastInterventionDate
+    ) {
+      existingHistory[0] = {
+        ...existingHistory[0],
+        date: currentAsset.lastInterventionDate
+      };
+    }
+
+    const newRecord: MaintenanceRecord = {
+      id: 'h-' + Date.now(),
+      title: interventionTitle,
+      date: formattedDate,
+      notes: notes || 'Intervenção preventiva executada e calibrada de acordo com procedimento padrão do Vazamento Contínuo.',
+      technicianName,
+      technicianRole: 'Técnico Responsável',
+      technicianReg: technicianReg || 'Rubrica Manual',
+      technicianAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD3gWrF5lATcnxnGAISqfZXHA14TRg_znYeMhsMaFTZuCvvaN2TFrLqTegiSHE2KpBuswVAPA5A-XzREb2109zJk5I47SiWJ8C3yJd_9Aj9FNukmZaflCFFw-IiexzmrpT4LMj-7XAjcS7hPPjVlwWrnQVlakJ5-pH0Ba0ohH1rf7FpO19tfdxU5kyeFOn4YOvLnQ5UueRxhRFGOgbYuokC1Z60r_8YZQxU0kFqJrWtPQgKOnOb85AJ',
+      verified: true
+    };
+
+    const updatedHistory = [newRecord, ...existingHistory];
 
     const updatedFields: Partial<Asset> = {
       status: 'Operacional',
@@ -433,13 +464,72 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       nextIntervention: {
         ...currentAsset.nextIntervention,
         dueDate: formattedNextDate,
-        daysRemaining: freqDays
+        daysRemaining: remainingDays
       },
       history: updatedHistory
     };
 
     updateAsset(assetId, updatedFields);
     showToast(`Manutenção concluída e sincronizada para ${interventionTitle}!`);
+  };
+
+  const updateHistoryRecord = async (
+    assetId: string,
+    recordId: string,
+    updatedRecord: Partial<MaintenanceRecord>
+  ) => {
+    const currentAsset = assets.find(a => a.id === assetId);
+    if (!currentAsset) return;
+
+    const updatedHistory = (currentAsset.history || []).map(r => {
+      if (r.id === recordId) {
+        return { ...r, ...updatedRecord };
+      }
+      return r;
+    });
+
+    const partial: Partial<Asset> = { history: updatedHistory };
+    // If the top entry date was changed, update lastInterventionDate to match
+    if (updatedHistory.length > 0 && updatedHistory[0].id === recordId && updatedRecord.date) {
+      partial.lastInterventionDate = updatedRecord.date;
+    }
+
+    updateAsset(assetId, partial);
+    showToast('Registo de histórico atualizado com sucesso!');
+  };
+
+  const deleteHistoryRecord = async (assetId: string, recordId: string) => {
+    const currentAsset = assets.find(a => a.id === assetId);
+    if (!currentAsset) return;
+
+    const updatedHistory = (currentAsset.history || []).filter(r => r.id !== recordId);
+    const partial: Partial<Asset> = { history: updatedHistory };
+    if (updatedHistory.length > 0) {
+      partial.lastInterventionDate = updatedHistory[0].date;
+    }
+
+    updateAsset(assetId, partial);
+    showToast('Registo removido do histórico.');
+  };
+
+  const addHistoryRecord = async (assetId: string, newRecord: Omit<MaintenanceRecord, 'id'>) => {
+    const currentAsset = assets.find(a => a.id === assetId);
+    if (!currentAsset) return;
+
+    const record: MaintenanceRecord = {
+      ...newRecord,
+      id: 'h-' + Date.now(),
+      verified: true
+    };
+
+    const updatedHistory = [record, ...(currentAsset.history || [])];
+    const partial: Partial<Asset> = {
+      history: updatedHistory,
+      lastInterventionDate: record.date
+    };
+
+    updateAsset(assetId, partial);
+    showToast('Novo registo adicionado ao histórico com sucesso!');
   };
 
   const openQrModal = (asset: Asset) => setQrModalAsset(asset);
@@ -499,7 +589,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         technicians,
         addTechnician,
         updateTechnician,
-        deleteTechnician
+        deleteTechnician,
+        updateHistoryRecord,
+        deleteHistoryRecord,
+        addHistoryRecord
       }}
     >
       {children}
