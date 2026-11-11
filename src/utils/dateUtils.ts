@@ -147,3 +147,76 @@ export function calculateNextCycle(baseDateStr: string, frequencyDays: number): 
     daysRemaining
   };
 }
+
+/**
+ * Recalculates an asset's dynamic cycle, remaining days, and percentage of remaining useful life (vida útil)
+ * relative to the current date and its last intervention or due date.
+ */
+export function recalculateAssetDynamicCycle<T extends {
+  status: string;
+  statusLabel?: string;
+  lastInterventionDate?: string;
+  nextIntervention: {
+    frequencyDays: number;
+    dueDate: string;
+    daysRemaining: number;
+    frequencyLabel?: string;
+    title?: string;
+    assignedTech?: string;
+  };
+}>(asset: T): T & {
+  vidaUtilPct: number;
+  calculatedDaysRemaining: number;
+} {
+  const freqDays = asset.nextIntervention.frequencyDays || 30;
+  let daysRemaining = asset.nextIntervention.daysRemaining;
+  let dueDate = asset.nextIntervention.dueDate;
+
+  // If we have lastInterventionDate, calculate accurately from lastInterventionDate + frequencyDays
+  if (asset.lastInterventionDate) {
+    const cycle = calculateNextCycle(asset.lastInterventionDate, freqDays);
+    dueDate = cycle.dueDate;
+    daysRemaining = cycle.daysRemaining;
+  } else if (dueDate) {
+    // If only dueDate is present, calculate remaining days from today to dueDate
+    const isoDue = toInputDateFormat(dueDate);
+    const [year, month, day] = isoDue.split('-').map(Number);
+    const dueMidnight = new Date(year, month - 1, day);
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffMs = dueMidnight.getTime() - todayMidnight.getTime();
+    daysRemaining = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  // Calculate vida útil percentage:
+  // vidaUtilPct = max(0, min(100, round((daysRemaining / freqDays) * 100)))
+  const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, daysRemaining) / freqDays) * 100)));
+
+  const isOverdue = daysRemaining < 0;
+  let status = asset.status;
+  let statusLabel = asset.statusLabel;
+
+  if (isOverdue) {
+    status = 'Pendente';
+    statusLabel = `MANUTENÇÃO VENCIDA (${Math.abs(daysRemaining)}d)`;
+  } else if (daysRemaining <= 5 && status !== 'Parado') {
+    status = 'Em Alerta';
+    statusLabel = `ALERTA (${daysRemaining}d)`;
+  } else if (status === 'Pendente' || !status) {
+    status = 'Operacional';
+    statusLabel = `PLANO EM DIA (${freqDays} DIAS)`;
+  }
+
+  return {
+    ...asset,
+    status,
+    statusLabel,
+    vidaUtilPct,
+    calculatedDaysRemaining: daysRemaining,
+    nextIntervention: {
+      ...asset.nextIntervention,
+      dueDate,
+      daysRemaining
+    }
+  };
+}

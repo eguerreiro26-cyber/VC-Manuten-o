@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Asset, TabType, Technician, MaintenanceRecord } from '../types';
 import { INITIAL_ASSETS, TECHNICIANS_LIST } from '../data/mockData';
-import { formatDateToPt, calculateNextCycle } from '../utils/dateUtils';
+import { formatDateToPt, calculateNextCycle, recalculateAssetDynamicCycle } from '../utils/dateUtils';
 import {
   collection,
   doc,
@@ -182,7 +182,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } else if (!snapshot.empty) {
           const cloudAssets: Asset[] = [];
           snapshot.forEach(docSnap => {
-            cloudAssets.push(docSnap.data() as Asset);
+            const rawAsset = docSnap.data() as Asset;
+            cloudAssets.push(recalculateAssetDynamicCycle(rawAsset));
           });
           setAssets(cloudAssets);
           setSyncStatus('synced');
@@ -239,7 +240,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     );
 
+    // Dynamic timer to automatically decrement days remaining and recalculate vida útil as time passes
+    const intervalTimer = setInterval(() => {
+      setAssets(prev => prev.map(a => recalculateAssetDynamicCycle(a)));
+    }, 60000); // Check every minute so state stays freshly computed
+
     return () => {
+      clearInterval(intervalTimer);
       unsubAssets();
       unsubTechs();
       unsubSettings();

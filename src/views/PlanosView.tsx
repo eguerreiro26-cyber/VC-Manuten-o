@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset } from '../types';
+import { recalculateAssetDynamicCycle } from '../utils/dateUtils';
 
 export const PlanosView: React.FC = () => {
   const { assets, openExecuteModal, viewAssetDetail } = useApp();
@@ -102,12 +103,13 @@ export const PlanosView: React.FC = () => {
 
       {/* Maintenance Plan Cards List */}
       <div className="flex flex-col gap-3">
-        {filteredAssets.map(asset => {
-          const isOverdue = asset.nextIntervention.daysRemaining < 0;
-          const isUrgent = asset.nextIntervention.daysRemaining >= 0 && asset.nextIntervention.daysRemaining <= 5;
+        {filteredAssets.map(rawAsset => {
+          const asset = recalculateAssetDynamicCycle(rawAsset);
+          const isOverdue = asset.calculatedDaysRemaining < 0;
+          const isUrgent = asset.calculatedDaysRemaining >= 0 && asset.calculatedDaysRemaining <= 5;
           const freqDays = asset.nextIntervention.frequencyDays || 30;
-          const remDays = asset.nextIntervention.daysRemaining;
-          const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, remDays) / freqDays) * 100)));
+          const remDays = asset.calculatedDaysRemaining;
+          const vidaUtilPct = asset.vidaUtilPct;
 
           return (
             <div

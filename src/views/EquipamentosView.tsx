@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { Asset } from '../types';
 import { EditAssetModal } from '../components/EditAssetModal';
+import { recalculateAssetDynamicCycle } from '../utils/dateUtils';
 
 export const EquipamentosView: React.FC = () => {
   const { assets, setActiveTab, viewAssetDetail, openQrModal } = useApp();
@@ -249,14 +250,15 @@ export const EquipamentosView: React.FC = () => {
 
       {/* Machinery Asset List */}
       <section className="flex flex-col gap-4 mt-1" id="asset-list">
-        {filteredAssets.map((asset: Asset) => {
+        {filteredAssets.map((rawAsset: Asset) => {
+          const asset = recalculateAssetDynamicCycle(rawAsset);
           const isCritA = asset.criticality === 'A';
           const isCritB = asset.criticality === 'B';
-          const isPending = asset.status === 'Pendente' || asset.nextIntervention?.daysRemaining <= 0;
+          const isPending = asset.status === 'Pendente' || asset.calculatedDaysRemaining <= 0;
 
           const totalDays = asset.nextIntervention.frequencyDays || 30;
-          const remainingDays = asset.nextIntervention.daysRemaining;
-          const vidaUtilPct = Math.max(0, Math.min(100, Math.round((remainingDays / totalDays) * 100)));
+          const remainingDays = asset.calculatedDaysRemaining;
+          const vidaUtilPct = asset.vidaUtilPct;
 
           return (
             <article

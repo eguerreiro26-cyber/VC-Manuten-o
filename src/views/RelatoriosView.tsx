@@ -7,6 +7,7 @@ import {
   generateAssetDossierPdf,
   downloadPdf
 } from '../utils/pdfGenerator';
+import { recalculateAssetDynamicCycle } from '../utils/dateUtils';
 
 export const RelatoriosView: React.FC = () => {
   const { assets, showToast } = useApp();
@@ -83,10 +84,11 @@ export const RelatoriosView: React.FC = () => {
       'Estado Operacional'
     ];
 
-    const rows = filteredAssets.map(a => {
+    const rows = filteredAssets.map(rawAsset => {
+      const a = recalculateAssetDynamicCycle(rawAsset);
       const freqDays = a.nextIntervention.frequencyDays || 30;
-      const remDays = a.nextIntervention.daysRemaining;
-      const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, remDays) / freqDays) * 100)));
+      const remDays = a.calculatedDaysRemaining;
+      const vidaUtilPct = a.vidaUtilPct;
 
       return [
         `"${a.tag}"`,
@@ -519,13 +521,14 @@ export const RelatoriosView: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#171f33] font-body-sm text-body-sm text-[#dae2fd]">
-                  {filteredAssets.map(asset => {
+                  {filteredAssets.map(rawAsset => {
+                    const asset = recalculateAssetDynamicCycle(rawAsset);
                     const isCritA = asset.criticality === 'A';
-                    const isOverdue = asset.nextIntervention.daysRemaining < 0;
-                    const isAlert = asset.nextIntervention.daysRemaining <= 5 && !isOverdue;
+                    const isOverdue = asset.calculatedDaysRemaining < 0;
+                    const isAlert = asset.calculatedDaysRemaining <= 5 && !isOverdue;
                     const freqDays = asset.nextIntervention.frequencyDays || 30;
-                    const remDays = asset.nextIntervention.daysRemaining;
-                    const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, remDays) / freqDays) * 100)));
+                    const remDays = asset.calculatedDaysRemaining;
+                    const vidaUtilPct = asset.vidaUtilPct;
                     const isExpanded = !!expandedRowIds[asset.id];
 
                     return (

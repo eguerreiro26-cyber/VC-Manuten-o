@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable, { UserOptions } from 'jspdf-autotable';
 import { Asset } from '../types';
+import { recalculateAssetDynamicCycle } from './dateUtils';
 
 /**
  * Triggers resilient download of a generated jsPDF document.
@@ -166,8 +167,9 @@ export function buildTechnicalReportPdf(
   });
 
   // 4. Main Assets Table
-  const tableData = assets.map(a => {
-    const rem = a.nextIntervention.daysRemaining;
+  const tableData = assets.map(rawAsset => {
+    const a = recalculateAssetDynamicCycle(rawAsset);
+    const rem = a.calculatedDaysRemaining;
     let remStr = `${rem} dias`;
     if (rem < 0) {
       remStr = `VENCIDO (${Math.abs(rem)}d)`;
@@ -175,8 +177,7 @@ export function buildTechnicalReportPdf(
       remStr = `HOJE`;
     }
 
-    const freqDays = a.nextIntervention.frequencyDays || 30;
-    const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, rem) / freqDays) * 100)));
+    const vidaUtilPct = a.vidaUtilPct;
 
     return [
       a.tag,
@@ -407,19 +408,20 @@ export function generateAssetDossierPdf(asset: Asset): void {
   doc.text(asset.status.toUpperCase(), pageWidth - 35, 38.5, { align: 'center' });
 
   // Grid of Specifications
+  const dynamicAsset = recalculateAssetDynamicCycle(asset);
   doc.setFontSize(8);
   const specFields = [
-    { label: 'Setor:', val: asset.sector },
-    { label: 'Área / Planta:', val: asset.plantArea || 'SN Seixal' },
-    { label: 'Criticidade:', val: `Classe ${asset.criticality} (Matriz RCM)` },
-    { label: 'Fabricante:', val: asset.manufacturer || 'Não especificado' },
-    { label: 'Nº de Série:', val: asset.serialNumber || 'N/A' },
-    { label: 'Última Intervenção:', val: asset.lastInterventionDate || 'Não registada' },
-    { label: 'Próxima Intervenção:', val: asset.nextIntervention.title },
-    { label: 'Data Limite:', val: `${asset.nextIntervention.dueDate} (${asset.nextIntervention.daysRemaining} dias)` },
-    { label: 'Periodicidade:', val: asset.nextIntervention.frequencyLabel },
-    { label: 'Técnico Responsável:', val: asset.nextIntervention.assignedTech || 'Engenharia de Manutenção' },
-    { label: 'Horímetro:', val: asset.horimeter ? `${asset.horimeter} h` : 'Contínuo' }
+    { label: 'Setor:', val: dynamicAsset.sector },
+    { label: 'Área / Planta:', val: dynamicAsset.plantArea || 'SN Seixal' },
+    { label: 'Criticidade:', val: `Classe ${dynamicAsset.criticality} (Matriz RCM)` },
+    { label: 'Fabricante:', val: dynamicAsset.manufacturer || 'Não especificado' },
+    { label: 'Nº de Série:', val: dynamicAsset.serialNumber || 'N/A' },
+    { label: 'Última Intervenção:', val: dynamicAsset.lastInterventionDate || 'Não registada' },
+    { label: 'Próxima Intervenção:', val: dynamicAsset.nextIntervention.title },
+    { label: 'Data Limite:', val: `${dynamicAsset.nextIntervention.dueDate} (${dynamicAsset.calculatedDaysRemaining} dias)` },
+    { label: 'Periodicidade:', val: dynamicAsset.nextIntervention.frequencyLabel },
+    { label: 'Técnico Responsável:', val: dynamicAsset.nextIntervention.assignedTech || 'Engenharia de Manutenção' },
+    { label: 'Horímetro:', val: dynamicAsset.horimeter ? `${dynamicAsset.horimeter} h` : 'Contínuo' }
   ];
 
   const col1X = 18;

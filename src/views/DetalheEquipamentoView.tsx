@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Asset, MaintenanceRecord } from '../types';
 import { generateAssetDossierPdf } from '../utils/pdfGenerator';
 import { EditAssetModal } from '../components/EditAssetModal';
-import { toInputDateFormat, formatDateToPt } from '../utils/dateUtils';
+import { toInputDateFormat, formatDateToPt, recalculateAssetDynamicCycle } from '../utils/dateUtils';
 
 interface DetalheProps {
   assetId: string;
@@ -57,9 +57,10 @@ export const DetalheEquipamentoView: React.FC<DetalheProps> = ({ assetId }) => {
   const isCritA = asset.criticality === 'A';
   const isCritB = asset.criticality === 'B';
 
-  const totalDays = asset.nextIntervention.frequencyDays || 30;
-  const remainingDays = asset.nextIntervention.daysRemaining;
-  const vidaUtilPct = Math.max(0, Math.min(100, Math.round((Math.max(0, remainingDays) / totalDays) * 100)));
+  const dynamic = recalculateAssetDynamicCycle(asset);
+  const totalDays = dynamic.nextIntervention.frequencyDays || 30;
+  const remainingDays = dynamic.calculatedDaysRemaining;
+  const vidaUtilPct = dynamic.vidaUtilPct;
 
   return (
     <div className="flex flex-col w-full gap-4 max-w-4xl mx-auto pb-32 pt-1 animate-in fade-in duration-200">
